@@ -1,0 +1,93 @@
+[
+  {
+    "groupId": "normal_early",
+    "rewards": [
+      { "materialId": "cracked_iron_piece", "minAmount": 1, "maxAmount": 3 }
+    ]
+  },
+  {
+    "groupId": "normal_mid",
+    "rewards": [
+      { "materialId": "cracked_iron_piece", "minAmount": 3, "maxAmount": 6 }
+    ]
+  },
+  {
+    "groupId": "normal_late",
+    "rewards": [
+      { "materialId": "cracked_iron_piece", "minAmount": 6, "maxAmount": 10 }
+    ]
+  },
+  {
+    "groupId": "normal_final",
+    "rewards": [
+      { "materialId": "cracked_iron_piece", "minAmount": 10, "maxAmount": 15 },
+      { "materialId": "cold_ember_powder", "minAmount": 3, "maxAmount": 5 }
+    ]
+  },
+  {
+    "groupId": "rare_early",
+    "rewards": [
+      { "materialId": "blue_black_jade_fragment", "minAmount": 2, "maxAmount": 4 }
+    ]
+  },
+  {
+    "groupId": "rare_mid",
+    "rewards": [
+      { "materialId": "blue_black_jade_fragment", "minAmount": 5, "maxAmount": 9 }
+    ]
+  },
+  {
+    "groupId": "rare_late",
+    "rewards": [
+      { "materialId": "blue_black_jade_fragment", "minAmount": 9, "maxAmount": 14 },
+      { "materialId": "grudge_iron_dust", "minAmount": 2, "maxAmount": 4 }
+    ]
+  },
+  {
+    "groupId": "rare_final",
+    "rewards": [
+      { "materialId": "blue_black_jade_fragment", "minAmount": 15, "maxAmount": 22 },
+      { "materialId": "grudge_iron_dust", "minAmount": 5, "maxAmount": 8 }
+    ]
+  },
+  {
+    "groupId": "epic_early",
+    "rewards": [
+      { "materialId": "cracked_soul_stone", "minAmount": 4, "maxAmount": 8 }
+    ]
+  },
+  {
+    "groupId": "epic_mid",
+    "rewards": [
+      { "materialId": "cracked_soul_stone", "minAmount": 8, "maxAmount": 14 },
+      { "materialId": "abyss_trace", "minAmount": 2, "maxAmount": 5 }
+    ]
+  },
+  {
+    "groupId": "epic_final",
+    "rewards": [
+      { "materialId": "cracked_soul_stone", "minAmount": 15, "maxAmount": 25 },
+      { "materialId": "abyss_trace", "minAmount": 6, "maxAmount": 10 }
+    ]
+  },
+  {
+    "groupId": "legendary_early",
+    "rewards": [
+      { "materialId": "sealed_stardust", "minAmount": 3, "maxAmount": 6 }
+    ]
+  },
+  {
+    "groupId": "legendary_mid",
+    "rewards": [
+      { "materialId": "sealed_stardust", "minAmount": 6, "maxAmount": 10 },
+      { "materialId": "cataclysm_remnant", "minAmount": 1, "maxAmount": 2 }
+    ]
+  },
+  {
+    "groupId": "legendary_final",
+    "rewards": [
+      { "materialId": "sealed_stardust", "minAmount": 16, "maxAmount": 25 },
+      { "materialId": "cataclysm_remnant", "minAmount": 4, "maxAmount": 7 }
+    ]
+  }
+]

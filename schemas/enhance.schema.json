@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "enhance.schema.json",
+  "title": "EnhanceTableEntry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "weaponId",
+    "successRate",
+    "failRate",
+    "failResult"
+  ],
+  "properties": {
+    "weaponId": { "type": "string", "minLength": 1 },
+    "successRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "failRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "failResult": {
+      "type": "string",
+      "enum": ["fail_destroyed", "protected_fail"]
+    }
+  }
+}
+

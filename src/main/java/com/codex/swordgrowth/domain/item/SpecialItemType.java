@@ -1,0 +1,11 @@
+package com.codex.swordgrowth.domain.item;
+
+public enum SpecialItemType {
+    BASIC_PROTECTION_TICKET,
+    MIDDLE_PROTECTION_TICKET,
+    ADVANCED_PROTECTION_TICKET,
+    LEGENDARY_PROTECTION_TICKET,
+    ENHANCE_RATE_BOOST_5,
+    ENHANCE_RATE_BOOST_10
+}
+

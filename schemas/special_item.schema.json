@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "special_item.schema.json",
+  "title": "SpecialItemDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "nameKo", "scope", "effect", "description"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "nameKo": { "type": "string", "minLength": 1 },
+    "scope": {
+      "type": "string",
+      "enum": ["normal", "rare", "epic", "legendary", "all"]
+    },
+    "effect": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 }
+  }
+}
+

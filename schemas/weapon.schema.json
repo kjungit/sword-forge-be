@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "weapon.schema.json",
+  "title": "WeaponDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "nameKo",
+    "nameEn",
+    "grade",
+    "stage",
+    "attackPower",
+    "successRate",
+    "failRate",
+    "failureRewardGroup",
+    "nextWeaponId",
+    "purchaseUnlockRequired",
+    "description"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "nameKo": { "type": "string", "minLength": 1 },
+    "nameEn": { "type": "string", "minLength": 1 },
+    "grade": {
+      "type": "string",
+      "enum": ["normal", "rare", "epic", "legendary"]
+    },
+    "stage": { "type": "integer", "minimum": 1 },
+    "attackPower": { "type": "integer", "minimum": 0 },
+    "successRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "failRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "failureRewardGroup": { "type": "string", "minLength": 1 },
+    "nextWeaponId": { "type": "string", "minLength": 1 },
+    "purchaseUnlockRequired": { "type": "boolean" },
+    "description": { "type": "string", "minLength": 1 }
+  }
+}
+

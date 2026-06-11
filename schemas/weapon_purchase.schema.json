@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "weapon_purchase.schema.json",
+  "title": "WeaponPurchaseCostDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["weaponId", "cost"],
+  "properties": {
+    "weaponId": { "type": "string", "minLength": 1 },
+    "cost": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    }
+  }
+}
+

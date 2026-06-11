@@ -1,0 +1,28 @@
+[
+  {
+    "weaponId": "normal_01",
+    "itemName": "돌조각 몽둥이",
+    "coreMaterial": "거친 돌조각",
+    "visualPoints": [
+      "둔하고 무거운 실루엣",
+      "거친 돌 파편 질감",
+      "가죽끈으로 감은 손잡이",
+      "회색 계열의 초반 무기 느낌"
+    ],
+    "style": "2D mobile game item icon, dark oriental fantasy, transparent background",
+    "negative": "no background, no hand, no character, no text"
+  },
+  {
+    "weaponId": "rare_01",
+    "itemName": "흑옥 비수",
+    "coreMaterial": "흑옥 파편",
+    "visualPoints": [
+      "짧고 날렵한 비수 실루엣",
+      "검푸른 흑옥 광택",
+      "저주 문양의 희미한 발광",
+      "청록과 흑색 대비"
+    ],
+    "style": "2D mobile game item icon, dark oriental fantasy, transparent background",
+    "negative": "no background, no hand, no character, no text"
+  }
+]

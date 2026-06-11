@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sword-growth-postgres
+    environment:
+      POSTGRES_DB: sword_growth
+      POSTGRES_USER: sword_growth
+      POSTGRES_PASSWORD: sword_growth
+    ports:
+      - "5432:5432"
+    volumes:
+      - sword_growth_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: sword-growth-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  sword_growth_postgres_data:
+

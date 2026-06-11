@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "failure_reward.schema.json",
+  "title": "FailureRewardDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["groupId", "rewards"],
+  "properties": {
+    "groupId": { "type": "string", "minLength": 1 },
+    "rewards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["materialId", "minAmount", "maxAmount"],
+        "properties": {
+          "materialId": { "type": "string", "minLength": 1 },
+          "minAmount": { "type": "integer", "minimum": 0 },
+          "maxAmount": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}
+

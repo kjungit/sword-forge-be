@@ -1,0 +1,44 @@
+[
+  {
+    "id": "basic_protection_ticket",
+    "nameKo": "초급 소멸 방지권",
+    "scope": "normal",
+    "effect": "fail_prevent_once",
+    "description": "일반 구간 강화 실패 시 검 소멸을 1회 막는다."
+  },
+  {
+    "id": "middle_protection_ticket",
+    "nameKo": "중급 소멸 방지권",
+    "scope": "rare",
+    "effect": "fail_prevent_once",
+    "description": "레어 구간 강화 실패 시 검 소멸을 1회 막는다."
+  },
+  {
+    "id": "advanced_protection_ticket",
+    "nameKo": "고급 소멸 방지권",
+    "scope": "epic",
+    "effect": "fail_prevent_once",
+    "description": "에픽 구간 강화 실패 시 검 소멸을 1회 막는다."
+  },
+  {
+    "id": "legendary_protection_ticket",
+    "nameKo": "전설 소멸 방지권",
+    "scope": "legendary",
+    "effect": "fail_prevent_once",
+    "description": "레전더리 구간 강화 실패 시 검 소멸을 1회 막는다."
+  },
+  {
+    "id": "enhance_rate_boost_5",
+    "nameKo": "강화 확률 보정권 +5%",
+    "scope": "all",
+    "effect": "enhance_rate_plus_5",
+    "description": "다음 강화 성공 확률을 5% 올린다."
+  },
+  {
+    "id": "enhance_rate_boost_10",
+    "nameKo": "강화 확률 보정권 +10%",
+    "scope": "all",
+    "effect": "enhance_rate_plus_10",
+    "description": "다음 강화 성공 확률을 10% 올린다."
+  }
+]

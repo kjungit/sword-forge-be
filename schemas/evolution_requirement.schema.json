@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evolution_requirement.schema.json",
+  "title": "EvolutionRequirement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fromWeaponId", "toGrade", "requiredWeapons", "requiredMaterials"],
+  "properties": {
+    "fromWeaponId": { "type": "string", "minLength": 1 },
+    "toGrade": {
+      "type": "string",
+      "enum": ["rare", "epic", "legendary"]
+    },
+    "requiredWeapons": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "requiredMaterials": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    }
+  }
+}
+

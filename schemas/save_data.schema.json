@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "save_data.schema.json",
+  "title": "PlayerSaveData",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "userId",
+    "currentWeaponId",
+    "materials",
+    "specialItems",
+    "weaponInventory",
+    "ownedWeaponIds",
+    "unlockedWeaponShop",
+    "discoveredWeaponIds",
+    "highestReachedWeaponId",
+    "updatedAt"
+  ],
+  "properties": {
+    "userId": { "type": "string", "minLength": 1 },
+    "currentWeaponId": { "type": "string", "minLength": 1 },
+    "materials": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "specialItems": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "weaponInventory": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "ownedWeaponIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "unlockedWeaponShop": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "discoveredWeaponIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "highestReachedWeaponId": { "type": "string", "minLength": 1 },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
