@@ -1,15 +1,16 @@
-# Sword Growth Backend Overview
+# Sword Forge Backend Overview
 
 ## Goal
 
-Build a server for the sword-enhancement game with persistent saves, enhancement logic, evolution, item handling, logs, and balancing data.
+Build a server for the sword-forging game with persistent saves, enhancement logic, evolution, item handling, logs, and balancing data.
 
 ## Stack
 
-- Java 21
+- Java 17
 - Spring Boot 3.4
 - Spring Web, Validation, Security
 - Spring Data JPA
+- Springdoc OpenAPI / Swagger UI
 - Flyway
 - PostgreSQL in production
 - H2 for tests
@@ -22,9 +23,16 @@ Build a server for the sword-enhancement game with persistent saves, enhancement
 - Save load and save upsert endpoints
 - Enhancement preview and attempt endpoints
 - Shop preview and purchase endpoints
+- Weapon sale preview and sale endpoints
 - Evolution preview and attempt endpoints
-- Special item catalog, grant, and consume endpoints
-- Enhancement logs and reward logs endpoints
+- Special item catalog, grant, consume, and purchase endpoints
+- Enhancement logs and reward logs endpoints with pagination and filters
+- Grade-bound enhancement, evolution-only grade upgrades, grade-floor protection, and pity stacks
+- Gold economy for enhancement fees, weapon sale, and special-item purchases
+- Optimistic save locking for concurrent mutation defense
+- Audit details on enhancement attempt logs
+- Basic Auth runtime guard, enabled outside tests
+- Swagger UI at `/swagger-ui.html`
 
 ## Game Data Files
 
@@ -32,6 +40,9 @@ Build a server for the sword-enhancement game with persistent saves, enhancement
 - `src/main/resources/data/enhance_table.json`
 - `src/main/resources/data/failure_rewards.json`
 - `src/main/resources/data/weapon_purchase_costs.json`
+- `src/main/resources/data/weapon_sale_prices.json`
+- `src/main/resources/data/enhance_costs.json`
+- `src/main/resources/data/item_purchase_prices.json`
 - `src/main/resources/data/evolution_requirements.json`
 - `src/main/resources/data/special_items.json`
 - `src/main/resources/data/image_prompts.json`
@@ -41,6 +52,7 @@ Build a server for the sword-enhancement game with persistent saves, enhancement
 - `scripts/validate_data_schemas.py`
 - `scripts/simulate_balance.py`
 - JSON schema drafts under `schemas/`
+- Simulation output under `outputs/` is ignored by git except `.gitkeep`
 
 ## Branch Policy
 

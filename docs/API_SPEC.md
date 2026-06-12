@@ -2,6 +2,12 @@
 
 Base path: `/api/v1`
 
+Swagger UI: `/swagger-ui.html`
+
+OpenAPI JSON: `/v3/api-docs`
+
+Runtime API requests require HTTP Basic authentication unless `app.security.enabled=false` is set for a local or test profile. Health and Swagger/OpenAPI endpoints are public.
+
 ## Health
 
 ### `GET /health`
@@ -33,15 +39,18 @@ Body:
 ```json
 {
   "currentWeaponId": "normal_01",
-  "materials": {},
+  "materials": { "gold": 20 },
   "specialItems": {},
   "weaponInventory": { "normal_01": 1 },
   "ownedWeaponIds": ["normal_01"],
   "unlockedWeaponShop": ["normal_01"],
   "discoveredWeaponIds": ["normal_01"],
-  "highestReachedWeaponId": "normal_01"
+  "highestReachedWeaponId": "normal_01",
+  "pityStacks": {}
 }
 ```
+
+`gold` is stored as `materials.gold` and acts as the soft currency for enhancement fees, weapon sale proceeds, and item purchases.
 
 ## Enhance
 
@@ -63,17 +72,30 @@ Body:
 
 Runs an enhancement attempt, writes the save data, and logs the attempt.
 
+Enhancement only advances within the same grade. A grade-cap weapon, such as `normal_10` or `rare_08`, must use the evolution API instead of enhancement.
+
 Response includes:
 - outcome
 - roll value
 - success threshold
+- `goldCost` and `remainingGold`
 - failure rewards
+- rate boost item id, when one was consumed
+- `pityKey`, `pityStackBefore`, `pityStackAfter`, and `pityBonus`
+
+Enhancement attempts consume the configured gold fee whether the attempt succeeds, fails with protection, or fails with destruction. Destroyed weapons do not grant sale gold.
+
+Pity stacks increase on enhancement failure, apply as a visible success-rate bonus, and are reset only when evolution succeeds for that grade.
 
 ## Shop
 
 ### `GET /shop/preview/{weaponId}`
 
 Returns the purchase cost for a weapon.
+
+### `GET /shop/sell-preview/{weaponId}`
+
+Returns the gold price paid when selling one copy of the weapon.
 
 ### `POST /shop/purchase`
 
@@ -87,6 +109,22 @@ Body:
   "weaponId": "normal_02"
 }
 ```
+
+### `POST /shop/sell`
+
+Sells stored weapon copies and adds `materials.gold`.
+
+Body:
+
+```json
+{
+  "userId": "local_user",
+  "weaponId": "normal_02",
+  "amount": 1
+}
+```
+
+The server rejects selling every owned weapon. If the equipped weapon is sold and no copy remains, the server equips the best remaining owned weapon.
 
 ## Evolution
 
@@ -134,12 +172,59 @@ Body:
 
 Consumes special items from a player's save.
 
+### `POST /items/purchase`
+
+Buys special items with `materials.gold`.
+
+Body:
+
+```json
+{
+  "userId": "local_user",
+  "itemId": "enhance_rate_boost_5",
+  "amount": 1
+}
+```
+
 ## Logs
 
 ### `GET /logs/enhance/{userId}`
 
-Returns the latest enhancement attempts for the user.
+Returns paginated enhancement attempts for the user.
+
+Query params:
+- `outcome`: optional, for example `success`, `fail_destroyed`, `protected_fail`
+- `protectionUsed`: optional boolean
+- `page`: zero-based page number, default `0`
+- `size`: page size from `1` to `100`, default `20`
+
+Response `data` shape:
+
+```json
+{
+  "content": [
+    {
+      "weaponId": "rare_01",
+      "outcome": "fail_destroyed",
+      "successThreshold": 0.82,
+      "detailsJson": "{\"pityKey\":\"rare\"}"
+    }
+  ],
+  "page": 0,
+  "size": 20,
+  "totalElements": 1,
+  "totalPages": 1,
+  "hasNext": false,
+  "hasPrevious": false
+}
+```
 
 ### `GET /logs/rewards/{userId}`
 
-Returns the latest reward grant events for the user.
+Returns paginated reward grant events for the user.
+
+Query params:
+- `rewardKind`: optional, for example `material`, `special_item`
+- `sourceType`: optional, for example `enhance_attempt`, `item_grant`, `item_purchase`, `weapon_sale`
+- `page`: zero-based page number, default `0`
+- `size`: page size from `1` to `100`, default `20`

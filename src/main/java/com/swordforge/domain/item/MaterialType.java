@@ -1,0 +1,15 @@
+package com.swordforge.domain.item;
+
+public enum MaterialType {
+    CRACKED_IRON_PIECE,
+    COLD_EMBER_POWDER,
+    BLUE_BLACK_JADE_FRAGMENT,
+    GRUDGE_IRON_DUST,
+    CRACKED_SOUL_STONE,
+    ABYSS_TRACE,
+    SEALED_STARDUST,
+    CATACLYSM_REMNANT,
+    EVOLUTION_FIXED_STONE,
+    BLACK_JADE_HEART,
+    GOLD
+}

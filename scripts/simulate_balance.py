@@ -18,6 +18,8 @@ ENHANCE_TABLE_PATH = ROOT / "src/main/resources/data/enhance_table.json"
 FAILURE_REWARDS_PATH = ROOT / "src/main/resources/data/failure_rewards.json"
 EVOLUTION_REQUIREMENTS_PATH = ROOT / "src/main/resources/data/evolution_requirements.json"
 PURCHASE_COSTS_PATH = ROOT / "src/main/resources/data/weapon_purchase_costs.json"
+WEAPON_SALE_PRICES_PATH = ROOT / "src/main/resources/data/weapon_sale_prices.json"
+ENHANCE_COSTS_PATH = ROOT / "src/main/resources/data/enhance_costs.json"
 OUTPUT_CSV = ROOT / "outputs/balance_result.csv"
 OUTPUT_MD = ROOT / "outputs/balance_summary.md"
 
@@ -73,10 +75,17 @@ def load_evolution_requirements() -> Dict[str, dict]:
     return {item["fromWeaponId"]: item for item in raw}
 
 
+def load_weapon_gold_values(path: Path, key: str) -> Dict[str, int]:
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    return {item["weaponId"]: item[key] for item in raw}
+
+
 def reward_rolls(group_id: str, reward_table: Dict[str, List[Tuple[str, int, int]]]) -> Dict[str, int]:
     rewards: Dict[str, int] = {}
     for material_id, min_amount, max_amount in reward_table[group_id]:
-        rewards[material_id] = random.randint(min_amount, max_amount)
+        amount = random.randint(min_amount, max_amount)
+        if amount > 0:
+            rewards[material_id] = amount
     return rewards
 
 
@@ -212,19 +221,95 @@ def evolve_weapon(
     return target_weapon.id, updated_inventory, updated_materials
 
 
-def pick_affordable_weapon(current: Weapon | None, unlocked: List[str], weapons_by_id: Dict[str, Weapon], materials: Counter) -> str:
+def pick_affordable_weapon(
+    unlocked: List[str],
+    weapons_by_id: Dict[str, Weapon],
+    materials: Counter,
+    purchase_costs: Dict[str, Dict[str, int]],
+    require_progressable: bool = False,
+) -> str:
     unlocked_weapons = sorted(
-        (weapons_by_id[weapon_id] for weapon_id in unlocked),
+        (
+            weapons_by_id[weapon_id]
+            for weapon_id in unlocked
+            if not require_progressable or weapons_by_id[weapon_id].next_weapon_id is not None
+        ),
         key=lambda weapon: (grade_order(weapon.grade), weapon.stage),
     )
     for weapon in reversed(unlocked_weapons):
-        if can_afford(materials, calculate_cost(weapon)):
+        if can_afford(materials, purchase_costs.get(weapon.id, {})):
             return weapon.id
     return unlocked_weapons[0].id if unlocked_weapons else "normal_01"
 
 
 def grade_order(grade: str) -> int:
     return {"normal": 0, "rare": 1, "epic": 2, "legendary": 3}.get(grade, 99)
+
+
+def choose_best_owned_weapon(inventory: Counter, weapons_by_id: Dict[str, Weapon]) -> str:
+    owned = [
+        weapons_by_id[weapon_id]
+        for weapon_id, amount in inventory.items()
+        if amount > 0 and weapon_id in weapons_by_id
+    ]
+    if not owned:
+        return "normal_01"
+    return max(owned, key=lambda weapon: (grade_order(weapon.grade), weapon.stage)).id
+
+
+def choose_best_owned_progressable_weapon(inventory: Counter, weapons_by_id: Dict[str, Weapon]) -> str | None:
+    owned = [
+        weapons_by_id[weapon_id]
+        for weapon_id, amount in inventory.items()
+        if amount > 0 and weapon_id in weapons_by_id and weapons_by_id[weapon_id].next_weapon_id is not None
+    ]
+    if not owned:
+        return None
+    return max(owned, key=lambda weapon: (grade_order(weapon.grade), weapon.stage)).id
+
+
+def sell_spare_weapon_for_gold(
+    current_weapon_id: str,
+    inventory: Counter,
+    materials: Counter,
+    sale_prices: Dict[str, int],
+    weapons_by_id: Dict[str, Weapon],
+) -> int:
+    sellable = [
+        weapons_by_id[weapon_id]
+        for weapon_id, amount in inventory.items()
+        if amount > 0 and weapon_id != current_weapon_id and weapon_id in weapons_by_id
+    ]
+    if not sellable:
+        return 0
+
+    weapon = min(sellable, key=lambda candidate: (grade_order(candidate.grade), candidate.stage))
+    remove_exact(inventory, weapon.id, 1)
+    gold = sale_prices[weapon.id]
+    materials["gold"] += gold
+    return gold
+
+
+def ensure_grade_floor(
+    inventory: Counter,
+    unlocked: List[str],
+    destroyed_grade: str,
+    weapons_by_id: Dict[str, Weapon],
+) -> Counter:
+    if destroyed_grade == "normal":
+        return inventory
+    has_grade_weapon = any(
+        amount > 0 and weapons_by_id[weapon_id].grade == destroyed_grade
+        for weapon_id, amount in inventory.items()
+        if weapon_id in weapons_by_id
+    )
+    if has_grade_weapon:
+        return inventory
+    floor_weapon = find_weapon_by_grade(weapons_by_id, destroyed_grade)
+    if floor_weapon.id not in unlocked:
+        return inventory
+    inventory[floor_weapon.id] += 1
+    return inventory
 
 
 def simulate_once(
@@ -235,19 +320,26 @@ def simulate_once(
     reward_table: Dict[str, List[Tuple[str, int, int]]],
     evolution_requirements: Dict[str, dict],
     purchase_costs: Dict[str, Dict[str, int]],
+    sale_prices: Dict[str, int],
+    enhance_costs: Dict[str, int],
     max_attempts: int,
 ) -> dict:
     current_weapon_id = start_weapon_id
     unlocked = [start_weapon_id]
     weapon_inventory = Counter({start_weapon_id: 1})
-    materials = Counter()
+    materials = Counter({"gold": max(20, sale_prices[start_weapon_id])})
+    pity_stacks = Counter()
+    material_sources = Counter()
+    material_sinks = Counter()
     attempts = 0
     destructions = 0
     repurchases = 0
     evolutions = 0
+    cap_resets = 0
 
     while current_weapon_id != target_weapon_id and attempts < max_attempts:
         if can_evolve(current_weapon_id, weapon_inventory, materials, evolution_requirements, weapons_by_id):
+            requirement = evolution_requirements[current_weapon_id]
             current_weapon_id, weapon_inventory, materials = evolve_weapon(
                 current_weapon_id,
                 weapon_inventory,
@@ -255,20 +347,67 @@ def simulate_once(
                 evolution_requirements,
                 weapons_by_id,
             )
+            material_sinks.update(requirement["requiredMaterials"])
+            pity_stacks[weapons_by_id[requirement["fromWeaponId"]].grade] = 0
             if current_weapon_id not in unlocked:
                 unlocked.append(current_weapon_id)
             evolutions += 1
             continue
 
         weapon = weapons_by_id[current_weapon_id]
+        if weapon.next_weapon_id is None:
+            owned_progressable_weapon_id = choose_best_owned_progressable_weapon(weapon_inventory, weapons_by_id)
+            if owned_progressable_weapon_id is not None:
+                current_weapon_id = owned_progressable_weapon_id
+                cap_resets += 1
+                continue
+
+            purchase_weapon_id = pick_affordable_weapon(
+                unlocked,
+                weapons_by_id,
+                materials,
+                purchase_costs,
+                require_progressable=True,
+            )
+            purchase_cost = purchase_costs[purchase_weapon_id]
+            if can_afford(materials, purchase_cost):
+                materials = spend(materials, purchase_cost)
+                material_sinks.update(purchase_cost)
+                weapon_inventory[purchase_weapon_id] += 1
+                current_weapon_id = purchase_weapon_id
+                repurchases += 1
+            else:
+                current_weapon_id = "normal_01"
+                weapon_inventory["normal_01"] += 1
+            cap_resets += 1
+            continue
+
         success_rate, _fail_rate = enhance_table[current_weapon_id]
+        gold_cost = enhance_costs[current_weapon_id]
+        while materials.get("gold", 0) < gold_cost:
+            sold_gold = sell_spare_weapon_for_gold(
+                current_weapon_id,
+                weapon_inventory,
+                materials,
+                sale_prices,
+                weapons_by_id,
+            )
+            if sold_gold <= 0:
+                break
+            material_sources["gold"] += sold_gold
+        if materials.get("gold", 0) < gold_cost:
+            break
+
+        materials = spend(materials, {"gold": gold_cost})
+        material_sinks["gold"] += gold_cost
+        pity_bonus = min(0.20, pity_stacks[weapon.grade] * 0.02)
+        success_threshold = min(1.0, success_rate + pity_bonus)
         attempts += 1
         roll = random.random()
-        if roll < success_rate:
+        if roll < success_threshold:
             next_weapon_id = weapon.next_weapon_id
             if next_weapon_id is None:
                 break
-            remove_exact(weapon_inventory, current_weapon_id, 1)
             weapon_inventory[next_weapon_id] += 1
             current_weapon_id = next_weapon_id
             if next_weapon_id not in unlocked:
@@ -277,15 +416,26 @@ def simulate_once(
 
         destructions += 1
         remove_exact(weapon_inventory, current_weapon_id, 1)
-        materials = merge_materials(materials, reward_rolls(weapon.failure_reward_group, reward_table))
-        current_weapon_id = "normal_01"
+        rewards = reward_rolls(weapon.failure_reward_group, reward_table)
+        materials = merge_materials(materials, rewards)
+        material_sources.update(rewards)
+        pity_stacks[weapon.grade] += 1
         weapon_inventory["normal_01"] += 1
+        weapon_inventory = ensure_grade_floor(weapon_inventory, unlocked, weapon.grade, weapons_by_id)
+        current_weapon_id = choose_best_owned_weapon(weapon_inventory, weapons_by_id)
 
         if unlocked:
-            purchase_weapon_id = pick_affordable_weapon(None, unlocked, weapons_by_id, materials)
+            purchase_weapon_id = pick_affordable_weapon(
+                unlocked,
+                weapons_by_id,
+                materials,
+                purchase_costs,
+                require_progressable=True,
+            )
             purchase_cost = purchase_costs[purchase_weapon_id]
             if can_afford(materials, purchase_cost):
                 materials = spend(materials, purchase_cost)
+                material_sinks.update(purchase_cost)
                 weapon_inventory[purchase_weapon_id] += 1
                 current_weapon_id = purchase_weapon_id
                 repurchases += 1
@@ -297,7 +447,10 @@ def simulate_once(
         "destructions": destructions,
         "repurchases": repurchases,
         "evolutions": evolutions,
+        "cap_resets": cap_resets,
         "reached": current_weapon_id == target_weapon_id,
+        "material_sources": dict(material_sources),
+        "material_sinks": dict(material_sinks),
         "remaining_materials": dict(materials),
     }
 
@@ -307,7 +460,13 @@ def summarize(rows: List[dict]) -> str:
     destructions = [row["destructions"] for row in rows]
     repurchases = [row["repurchases"] for row in rows]
     evolutions = [row["evolutions"] for row in rows]
+    cap_resets = [row["cap_resets"] for row in rows]
     reached_count = sum(1 for row in rows if row["reached"])
+    material_sources = Counter()
+    material_sinks = Counter()
+    for row in rows:
+        material_sources.update(row["material_sources"])
+        material_sinks.update(row["material_sinks"])
 
     if len(attempts) >= 10:
         p10 = statistics.quantiles(attempts, n=10)[0]
@@ -326,8 +485,17 @@ def summarize(rows: List[dict]) -> str:
         f"- mean destructions: {statistics.mean(destructions):.2f}",
         f"- mean repurchases: {statistics.mean(repurchases):.2f}",
         f"- mean evolutions: {statistics.mean(evolutions):.2f}",
+        f"- mean cap resets: {statistics.mean(cap_resets):.2f}",
         f"- p10 attempts: {p10:.2f}",
         f"- p90 attempts: {p90:.2f}",
+        "",
+        "## Material Sources",
+        "",
+        *[f"- {material_id}: {amount}" for material_id, amount in sorted(material_sources.items())],
+        "",
+        "## Material Sinks",
+        "",
+        *[f"- {material_id}: {amount}" for material_id, amount in sorted(material_sinks.items())],
         "",
     ]
 
@@ -340,7 +508,7 @@ def summarize(rows: List[dict]) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Sword Growth balance simulator")
+    parser = argparse.ArgumentParser(description="Sword Forge balance simulator")
     parser.add_argument("--runs", type=int, default=10000)
     parser.add_argument("--max-attempts", type=int, default=5000)
     args = parser.parse_args()
@@ -351,6 +519,8 @@ def main() -> None:
     evolution_requirements = load_evolution_requirements()
     purchase_costs = json.loads(PURCHASE_COSTS_PATH.read_text(encoding="utf-8"))
     purchase_costs_by_id = {entry["weaponId"]: entry["cost"] for entry in purchase_costs}
+    sale_prices = load_weapon_gold_values(WEAPON_SALE_PRICES_PATH, "goldPrice")
+    enhance_costs = load_weapon_gold_values(ENHANCE_COSTS_PATH, "goldCost")
     weapons_by_id = {weapon.id: weapon for weapon in weapons}
 
     targets = [
@@ -374,6 +544,8 @@ def main() -> None:
                     reward_table=reward_table,
                     evolution_requirements=evolution_requirements,
                     purchase_costs=purchase_costs_by_id,
+                    sale_prices=sale_prices,
+                    enhance_costs=enhance_costs,
                     max_attempts=args.max_attempts,
                 )
             )
@@ -388,13 +560,21 @@ def main() -> None:
                     "destructions",
                     "repurchases",
                     "evolutions",
+                    "cap_resets",
                     "reached",
+                    "material_sources",
+                    "material_sinks",
                     "remaining_materials",
                 ],
             )
         writer.writeheader()
         for row in rows:
-            writer.writerow({**row, "remaining_materials": json.dumps(row["remaining_materials"], ensure_ascii=False)})
+            writer.writerow({
+                **row,
+                "material_sources": json.dumps(row["material_sources"], ensure_ascii=False),
+                "material_sinks": json.dumps(row["material_sinks"], ensure_ascii=False),
+                "remaining_materials": json.dumps(row["remaining_materials"], ensure_ascii=False),
+            })
 
     OUTPUT_MD.write_text(summarize(rows), encoding="utf-8")
     print(f"wrote {OUTPUT_CSV}")

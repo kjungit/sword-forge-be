@@ -2,32 +2,35 @@
   {
     "fromWeaponId": "normal_10",
     "toGrade": "rare",
-    "requiredWeapons": { "normal_10": 1 },
+    "requiredWeapons": {
+      "normal_10": 1
+    },
     "requiredMaterials": {
       "evolution_fixed_stone": 1,
-      "cracked_iron_piece": 100,
-      "cold_ember_powder": 30
+      "cold_ember_powder": 6
     }
   },
   {
     "fromWeaponId": "rare_08",
     "toGrade": "epic",
-    "requiredWeapons": { "rare_08": 1, "rare_03_or_higher": 2 },
+    "requiredWeapons": {
+      "rare_08": 1
+    },
     "requiredMaterials": {
-      "evolution_fixed_stone": 3,
-      "blue_black_jade_fragment": 250,
-      "grudge_iron_dust": 80
+      "evolution_fixed_stone": 1,
+      "grudge_iron_dust": 4
     }
   },
   {
     "fromWeaponId": "epic_05",
     "toGrade": "legendary",
-    "requiredWeapons": { "epic_05": 1, "epic_03_or_higher": 2 },
+    "requiredWeapons": {
+      "epic_05": 1
+    },
     "requiredMaterials": {
       "black_jade_heart": 1,
-      "evolution_fixed_stone": 5,
-      "cracked_soul_stone": 500,
-      "abyss_trace": 200
+      "evolution_fixed_stone": 1,
+      "abyss_trace": 8
     }
   }
 ]

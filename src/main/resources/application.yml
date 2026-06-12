@@ -1,10 +1,10 @@
 spring:
   application:
-    name: sword-growth-server
+    name: sword-forge-server
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sword_growth}
-    username: ${SPRING_DATASOURCE_USERNAME:sword_growth}
-    password: ${SPRING_DATASOURCE_PASSWORD:sword_growth}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sword_forge}
+    username: ${SPRING_DATASOURCE_USERNAME:sword_forge}
+    password: ${SPRING_DATASOURCE_PASSWORD:sword_forge}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -21,6 +21,17 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+app:
+  security:
+    enabled: ${APP_SECURITY_ENABLED:true}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    operations-sorter: method
+    tags-sorter: alpha
+
 management:
   endpoints:
     web:
@@ -30,4 +41,3 @@ management:
     health:
       probes:
         enabled: true
-

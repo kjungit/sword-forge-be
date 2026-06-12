@@ -14,6 +14,7 @@
     "unlockedWeaponShop",
     "discoveredWeaponIds",
     "highestReachedWeaponId",
+    "pityStacks",
     "updatedAt"
   ],
   "properties": {
@@ -44,6 +45,10 @@
       "items": { "type": "string", "minLength": 1 }
     },
     "highestReachedWeaponId": { "type": "string", "minLength": 1 },
+    "pityStacks": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
     "updatedAt": { "type": "string", "format": "date-time" }
   }
 }
