@@ -1,5 +1,6 @@
 package com.swordforge.application.evolution;
 
+import com.swordforge.application.economy.EconomyLogService;
 import com.swordforge.application.save.PlayerSaveService;
 import com.swordforge.application.weapon.WeaponCatalogService;
 import com.swordforge.domain.evolution.EvolutionRequirementDefinition;
@@ -21,15 +22,18 @@ public class EvolutionService {
     private final WeaponCatalogService weaponCatalogService;
     private final EvolutionRequirementService evolutionRequirementService;
     private final PlayerSaveService playerSaveService;
+    private final EconomyLogService economyLogService;
 
     public EvolutionService(
             WeaponCatalogService weaponCatalogService,
             EvolutionRequirementService evolutionRequirementService,
-            PlayerSaveService playerSaveService
+            PlayerSaveService playerSaveService,
+            EconomyLogService economyLogService
     ) {
         this.weaponCatalogService = weaponCatalogService;
         this.evolutionRequirementService = evolutionRequirementService;
         this.playerSaveService = playerSaveService;
+        this.economyLogService = economyLogService;
     }
 
     public EvolutionPreview preview(String fromWeaponId) {
@@ -70,6 +74,14 @@ public class EvolutionService {
                 pityStacks,
                 Instant.now()
         ));
+        economyLogService.logMaterialDeltas(
+                userId,
+                "evolution_material_cost",
+                source.id(),
+                negate(requirement.requiredMaterials()),
+                updated.materials(),
+                Map.of("fromWeaponId", source.id(), "toWeaponId", target.id())
+        );
 
         return new EvolutionResult(
                 userId,
@@ -96,6 +108,14 @@ public class EvolutionService {
             }
         }
         return Map.copyOf(updated);
+    }
+
+    private Map<String, Integer> negate(Map<String, Integer> values) {
+        Map<String, Integer> negated = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : values.entrySet()) {
+            negated.put(entry.getKey(), -entry.getValue());
+        }
+        return Map.copyOf(negated);
     }
 
     private void consumeWeaponRequirement(Map<String, Integer> inventory, Map<String, Integer> requiredWeapons, String currentWeaponId) {

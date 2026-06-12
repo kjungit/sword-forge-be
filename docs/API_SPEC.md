@@ -274,3 +274,16 @@ Query params:
 - `sourceType`: optional, for example `enhance_attempt`, `item_grant`, `item_purchase`, `weapon_sale`
 - `page`: zero-based page number, default `0`
 - `size`: page size from `1` to `100`, default `20`
+
+### `GET /logs/economy/{userId}`
+
+Returns paginated signed economy ledger entries for the user.
+
+Query params:
+- `transactionType`: optional, for example `enhance_cost`, `weapon_sale`, `item_purchase_gold_cost`
+- `resourceKind`: optional, for example `material`, `special_item`
+- `resourceId`: optional, for example `gold`, `enhance_rate_boost_5`
+- `page`: zero-based page number, default `0`
+- `size`: page size from `1` to `100`, default `20`
+
+Positive `amount` values are sources. Negative `amount` values are sinks. `balanceAfter` is the resource balance after the transaction.

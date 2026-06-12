@@ -474,6 +474,43 @@ class GameFlowIntegrationTests {
     }
 
     @Test
+    void economyLogEndpointTracksGoldSourcesAndSinks() throws Exception {
+        String userId = "economy-log-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_01",
+                Map.of("gold", 100),
+                Map.of(),
+                Map.of("normal_01", 1, "normal_02", 1),
+                List.of("normal_01", "normal_02"),
+                List.of("normal_01", "normal_02"),
+                List.of("normal_01", "normal_02"),
+                "normal_02",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        weaponPurchaseService.sell(userId, "normal_02", 1);
+        specialItemService.purchase(userId, "enhance_rate_boost_5", 1);
+
+        mockMvc.perform(get("/api/v1/logs/economy/{userId}", userId)
+                        .param("transactionType", "weapon_sale")
+                        .param("resourceId", "gold"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.content[0].amount").value(4))
+                .andExpect(jsonPath("$.data.content[0].balanceAfter").value(104));
+
+        mockMvc.perform(get("/api/v1/logs/economy/{userId}", userId)
+                        .param("transactionType", "item_purchase_gold_cost")
+                        .param("resourceId", "gold"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalElements").value(1))
+                .andExpect(jsonPath("$.data.content[0].amount").value(-40))
+                .andExpect(jsonPath("$.data.content[0].balanceAfter").value(64));
+    }
+
+    @Test
     void enhanceConsumesBoostItemAndUsesItsBonus() {
         String userId = "enhance-boost-user";
         playerSaveService.upsert(new PlayerSaveData(

@@ -22,6 +22,7 @@
 - Basic Auth guard for non-test runtime
 - Swagger UI and OpenAPI JSON
 - paginated log queries
+- signed economy ledger queries
 - JSON schema validation script for game data
 - balance simulator and cross-file data checks
 - grade-floor protection, pity stacks, and evolution-only grade upgrades

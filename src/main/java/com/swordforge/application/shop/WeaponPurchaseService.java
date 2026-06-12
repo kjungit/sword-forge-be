@@ -1,6 +1,7 @@
 package com.swordforge.application.shop;
 
 import com.swordforge.application.save.PlayerSaveService;
+import com.swordforge.application.economy.EconomyLogService;
 import com.swordforge.application.reward.RewardLogService;
 import com.swordforge.application.weapon.WeaponCatalogService;
 import com.swordforge.domain.save.PlayerSaveData;
@@ -21,19 +22,22 @@ public class WeaponPurchaseService {
     private final WeaponPurchaseCostService weaponPurchaseCostService;
     private final WeaponSalePriceService weaponSalePriceService;
     private final RewardLogService rewardLogService;
+    private final EconomyLogService economyLogService;
 
     public WeaponPurchaseService(
             WeaponCatalogService weaponCatalogService,
             PlayerSaveService playerSaveService,
             WeaponPurchaseCostService weaponPurchaseCostService,
             WeaponSalePriceService weaponSalePriceService,
-            RewardLogService rewardLogService
+            RewardLogService rewardLogService,
+            EconomyLogService economyLogService
     ) {
         this.weaponCatalogService = weaponCatalogService;
         this.playerSaveService = playerSaveService;
         this.weaponPurchaseCostService = weaponPurchaseCostService;
         this.weaponSalePriceService = weaponSalePriceService;
         this.rewardLogService = rewardLogService;
+        this.economyLogService = economyLogService;
     }
 
     public PurchasePreview preview(String weaponId) {
@@ -44,12 +48,12 @@ public class WeaponPurchaseService {
     @Transactional
     public PurchaseResult purchase(String userId, String weaponId) {
         WeaponDefinition weapon = weaponCatalogService.findById(weaponId);
+        Map<String, Integer> cost = calculateCost(weapon);
         PlayerSaveData updated = playerSaveService.mutate(userId, save -> {
             if (!save.unlockedWeaponShop().contains(weaponId)) {
                 throw new IllegalArgumentException("weapon is not unlocked yet: " + weaponId);
             }
 
-            Map<String, Integer> cost = calculateCost(weapon);
             assertEnoughMaterials(save.materials(), cost);
             Map<String, Integer> remainingMaterials = deductMaterials(save.materials(), cost);
 
@@ -71,10 +75,18 @@ public class WeaponPurchaseService {
                     save.highestReachedWeaponId(),
                     save.pityStacks(),
                     Instant.now()
-            );
+                );
         });
+        economyLogService.logMaterialDeltas(
+                userId,
+                "weapon_purchase_cost",
+                weaponId,
+                negate(cost),
+                updated.materials(),
+                Map.of("weaponId", weaponId)
+        );
 
-        return new PurchaseResult(userId, weaponId, calculateCost(weapon), updated.materials(), updated.currentWeaponId());
+        return new PurchaseResult(userId, weaponId, cost, updated.materials(), updated.currentWeaponId());
     }
 
     public SalePreview salePreview(String weaponId) {
@@ -125,6 +137,14 @@ public class WeaponPurchaseService {
             );
         });
         rewardLogService.logMaterialRewards(userId, "weapon_sale", weaponId, Map.of(PlayerSaveService.GOLD_MATERIAL_ID, totalGold));
+        economyLogService.logMaterialDeltas(
+                userId,
+                "weapon_sale",
+                weaponId,
+                Map.of(PlayerSaveService.GOLD_MATERIAL_ID, totalGold),
+                updated.materials(),
+                Map.of("weaponId", weaponId, "amount", amount)
+        );
 
         return new SaleResult(
                 userId,
@@ -160,6 +180,14 @@ public class WeaponPurchaseService {
 
     private Map<String, Integer> calculateCost(WeaponDefinition weapon) {
         return weaponPurchaseCostService.findCost(weapon.id());
+    }
+
+    private Map<String, Integer> negate(Map<String, Integer> values) {
+        Map<String, Integer> negated = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> entry : values.entrySet()) {
+            negated.put(entry.getKey(), -entry.getValue());
+        }
+        return Map.copyOf(negated);
     }
 
     private int totalOwnedWeaponCount(Map<String, Integer> inventory) {

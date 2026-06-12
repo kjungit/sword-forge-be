@@ -28,6 +28,7 @@
 - Direct save upsert and special-item grant are admin-only runtime operations.
 - Enhancement failures and special-item grants are recorded in reward logs.
 - Weapon sales and special-item purchases are recorded in reward logs.
+- Economy source and sink deltas are recorded in signed ledger logs.
 - Enhancement attempt logs include audit details such as pity values and failure rewards.
 - Weapon definitions are loaded from `src/main/resources/data/weapons.json`.
 - Failure reward tables are loaded from `src/main/resources/data/failure_rewards.json`.

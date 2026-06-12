@@ -68,8 +68,11 @@
 
 - Enhancement logs can be queried by user with `page`, `size`, `outcome`, and `protectionUsed`.
 - Reward logs can be queried by user with `page`, `size`, `rewardKind`, and `sourceType`.
+- Economy logs can be queried by user with `page`, `size`, `transactionType`, `resourceKind`, and `resourceId`.
 - Weapon sale gold uses `sourceType=weapon_sale`.
 - Item purchases use `sourceType=item_purchase`.
+- Weapon sale writes a positive economy ledger amount for `gold`.
+- Item purchase writes a negative economy ledger amount for `gold`.
 
 ## Security
 

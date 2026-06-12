@@ -1,9 +1,11 @@
 package com.swordforge.web.api;
 
+import com.swordforge.application.economy.EconomyLogService;
 import com.swordforge.application.reward.RewardLogService;
 import com.swordforge.common.api.ApiResponse;
 import com.swordforge.common.api.PageResponse;
 import com.swordforge.common.security.RequestUserGuard;
+import com.swordforge.web.dto.EconomyTransactionLogResponse;
 import com.swordforge.web.dto.EnhanceAttemptLogResponse;
 import com.swordforge.web.dto.RewardGrantLogResponse;
 import org.springframework.data.domain.PageRequest;
@@ -19,15 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class LogApiController {
 
     private final RewardLogService rewardLogService;
+    private final EconomyLogService economyLogService;
     private final com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository;
     private final RequestUserGuard requestUserGuard;
 
     public LogApiController(
             RewardLogService rewardLogService,
+            EconomyLogService economyLogService,
             com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository,
             RequestUserGuard requestUserGuard
     ) {
         this.rewardLogService = rewardLogService;
+        this.economyLogService = economyLogService;
         this.enhanceAttemptRepository = enhanceAttemptRepository;
         this.requestUserGuard = requestUserGuard;
     }
@@ -60,6 +65,22 @@ public class LogApiController {
         return ApiResponse.ok(PageResponse.from(rewardLogService
                 .findByUserId(userId, rewardKind, sourceType, pageable)
                 .map(RewardGrantLogResponse::from)));
+    }
+
+    @GetMapping("/economy/{userId}")
+    public ApiResponse<PageResponse<EconomyTransactionLogResponse>> listEconomyLogs(
+            @PathVariable String userId,
+            @RequestParam(required = false) String transactionType,
+            @RequestParam(required = false) String resourceKind,
+            @RequestParam(required = false) String resourceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
+        Pageable pageable = pageRequest(page, size);
+        return ApiResponse.ok(PageResponse.from(economyLogService
+                .findByUserId(userId, transactionType, resourceKind, resourceId, pageable)
+                .map(EconomyTransactionLogResponse::from)));
     }
 
     private Pageable pageRequest(int page, int size) {

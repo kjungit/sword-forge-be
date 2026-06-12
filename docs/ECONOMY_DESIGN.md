@@ -45,6 +45,8 @@
 - Destroy failures keep a discovered non-normal grade floor, so a rare or higher player does not fall back to normal progression.
 - Save data stores current inventory state.
 - Save data uses optimistic locking to reject concurrent overwrite races.
+- Economy ledger entries store signed resource deltas for sources and sinks.
+- Positive ledger amounts are gains; negative ledger amounts are costs or consumption.
 
 ## Balance workflow
 

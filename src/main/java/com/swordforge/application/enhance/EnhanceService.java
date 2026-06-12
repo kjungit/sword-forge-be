@@ -3,6 +3,7 @@ package com.swordforge.application.enhance;
 import com.swordforge.domain.enhance.EnhanceAttemptEntity;
 import com.swordforge.domain.enhance.EnhanceAttemptRepository;
 import com.swordforge.domain.enhance.EnhanceTableDefinition;
+import com.swordforge.application.economy.EconomyLogService;
 import com.swordforge.application.save.PlayerSaveService;
 import com.swordforge.application.reward.RewardLogService;
 import com.swordforge.application.reward.FailureRewardService;
@@ -37,6 +38,7 @@ public class EnhanceService {
     private final RewardLogService rewardLogService;
     private final SpecialItemCatalogService specialItemCatalogService;
     private final EnhanceCostService enhanceCostService;
+    private final EconomyLogService economyLogService;
     private final ObjectMapper objectMapper;
 
     public EnhanceService(
@@ -48,6 +50,7 @@ public class EnhanceService {
             RewardLogService rewardLogService,
             SpecialItemCatalogService specialItemCatalogService,
             EnhanceCostService enhanceCostService,
+            EconomyLogService economyLogService,
             ObjectMapper objectMapper
     ) {
         this.weaponCatalogService = weaponCatalogService;
@@ -58,6 +61,7 @@ public class EnhanceService {
         this.rewardLogService = rewardLogService;
         this.specialItemCatalogService = specialItemCatalogService;
         this.enhanceCostService = enhanceCostService;
+        this.economyLogService = economyLogService;
         this.objectMapper = objectMapper;
     }
 
@@ -236,7 +240,23 @@ public class EnhanceService {
         ));
         if (!failureRewards.isEmpty()) {
             rewardLogService.logMaterialRewards(userId, "enhance_attempt", weaponId, failureRewards);
+            economyLogService.logMaterialDeltas(
+                    userId,
+                    "enhance_failure_reward",
+                    weaponId,
+                    failureRewards,
+                    updated.materials(),
+                    Map.of("weaponId", weaponId, "outcome", outcome.name().toLowerCase())
+            );
         }
+        economyLogService.logMaterialDeltas(
+                userId,
+                "enhance_cost",
+                weaponId,
+                Map.of(PlayerSaveService.GOLD_MATERIAL_ID, -goldCost),
+                updated.materials(),
+                Map.of("weaponId", weaponId, "outcome", outcome.name().toLowerCase())
+        );
 
         return new EnhanceResult(
                 userId,

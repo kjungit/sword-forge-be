@@ -1,5 +1,6 @@
 package com.swordforge.application.item;
 
+import com.swordforge.application.economy.EconomyLogService;
 import com.swordforge.application.save.PlayerSaveService;
 import com.swordforge.application.reward.RewardLogService;
 import com.swordforge.domain.save.PlayerSaveData;
@@ -18,17 +19,20 @@ public class SpecialItemService {
     private final SpecialItemCatalogService specialItemCatalogService;
     private final ItemPurchasePriceService itemPurchasePriceService;
     private final RewardLogService rewardLogService;
+    private final EconomyLogService economyLogService;
 
     public SpecialItemService(
             PlayerSaveService playerSaveService,
             SpecialItemCatalogService specialItemCatalogService,
             ItemPurchasePriceService itemPurchasePriceService,
-            RewardLogService rewardLogService
+            RewardLogService rewardLogService,
+            EconomyLogService economyLogService
     ) {
         this.playerSaveService = playerSaveService;
         this.specialItemCatalogService = specialItemCatalogService;
         this.itemPurchasePriceService = itemPurchasePriceService;
         this.rewardLogService = rewardLogService;
+        this.economyLogService = economyLogService;
     }
 
     public SpecialItemDefinition preview(String itemId) {
@@ -38,9 +42,8 @@ public class SpecialItemService {
     @Transactional
     public PlayerSaveData grant(String userId, String itemId, int amount) {
         specialItemCatalogService.findById(itemId);
-        return playerSaveService.mutate(userId, save -> {
+        PlayerSaveData updatedSave = playerSaveService.mutate(userId, save -> {
             Map<String, Integer> updated = addCount(save.specialItems(), itemId, amount);
-            rewardLogService.logSpecialItemReward(userId, "item_grant", itemId, itemId, amount);
             return new PlayerSaveData(
                     save.userId(),
                     save.currentWeaponId(),
@@ -56,12 +59,22 @@ public class SpecialItemService {
                     Instant.now()
             );
         });
+        rewardLogService.logSpecialItemReward(userId, "item_grant", itemId, itemId, amount);
+        economyLogService.logSpecialItemDeltas(
+                userId,
+                "item_grant",
+                itemId,
+                Map.of(itemId, amount),
+                updatedSave.specialItems(),
+                Map.of("itemId", itemId, "amount", amount)
+        );
+        return updatedSave;
     }
 
     @Transactional
     public PlayerSaveData consume(String userId, String itemId, int amount) {
         specialItemCatalogService.findById(itemId);
-        return playerSaveService.mutate(userId, save -> {
+        PlayerSaveData updatedSave = playerSaveService.mutate(userId, save -> {
             Map<String, Integer> updated = removeCount(save.specialItems(), itemId, amount);
             return new PlayerSaveData(
                     save.userId(),
@@ -78,6 +91,15 @@ public class SpecialItemService {
                     Instant.now()
             );
         });
+        economyLogService.logSpecialItemDeltas(
+                userId,
+                "item_consume",
+                itemId,
+                Map.of(itemId, -amount),
+                updatedSave.specialItems(),
+                Map.of("itemId", itemId, "amount", amount)
+        );
+        return updatedSave;
     }
 
     @Transactional
@@ -91,7 +113,6 @@ public class SpecialItemService {
         PlayerSaveData updatedSave = playerSaveService.mutate(userId, save -> {
             Map<String, Integer> updatedMaterials = playerSaveService.spendGold(save.materials(), totalGoldCost);
             Map<String, Integer> updatedItems = addCount(save.specialItems(), itemId, amount);
-            rewardLogService.logSpecialItemReward(userId, "item_purchase", itemId, itemId, amount);
             return new PlayerSaveData(
                     save.userId(),
                     save.currentWeaponId(),
@@ -107,6 +128,23 @@ public class SpecialItemService {
                     Instant.now()
             );
         });
+        rewardLogService.logSpecialItemReward(userId, "item_purchase", itemId, itemId, amount);
+        economyLogService.logMaterialDeltas(
+                userId,
+                "item_purchase_gold_cost",
+                itemId,
+                Map.of(PlayerSaveService.GOLD_MATERIAL_ID, -totalGoldCost),
+                updatedSave.materials(),
+                Map.of("itemId", itemId, "amount", amount)
+        );
+        economyLogService.logSpecialItemDeltas(
+                userId,
+                "item_purchase",
+                itemId,
+                Map.of(itemId, amount),
+                updatedSave.specialItems(),
+                Map.of("itemId", itemId, "amount", amount)
+        );
 
         return new PurchaseResult(
                 userId,
