@@ -22,8 +22,8 @@
   { "weaponId": "epic_03", "goldCost": 22 },
   { "weaponId": "epic_04", "goldCost": 26 },
   { "weaponId": "epic_05", "goldCost": 30 },
-  { "weaponId": "legendary_01", "goldCost": 35 },
-  { "weaponId": "legendary_02", "goldCost": 45 },
-  { "weaponId": "legendary_03", "goldCost": 60 },
-  { "weaponId": "legendary_04", "goldCost": 80 }
+  { "weaponId": "legendary_01", "goldCost": 25 },
+  { "weaponId": "legendary_02", "goldCost": 35 },
+  { "weaponId": "legendary_03", "goldCost": 45 },
+  { "weaponId": "legendary_04", "goldCost": 60 }
 ]

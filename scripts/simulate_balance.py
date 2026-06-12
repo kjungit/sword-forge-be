@@ -327,9 +327,11 @@ def simulate_once(
     current_weapon_id = start_weapon_id
     unlocked = [start_weapon_id]
     weapon_inventory = Counter({start_weapon_id: 1})
-    materials = Counter({"gold": max(20, sale_prices[start_weapon_id])})
+    initial_gold = max(20, sale_prices[start_weapon_id])
+    materials = Counter({"gold": initial_gold})
     pity_stacks = Counter()
     material_sources = Counter()
+    material_sources["gold"] += initial_gold
     material_sinks = Counter()
     attempts = 0
     destructions = 0
@@ -449,10 +451,19 @@ def simulate_once(
         "evolutions": evolutions,
         "cap_resets": cap_resets,
         "reached": current_weapon_id == target_weapon_id,
+        "initial_gold": initial_gold,
         "material_sources": dict(material_sources),
         "material_sinks": dict(material_sinks),
         "remaining_materials": dict(materials),
     }
+
+
+def percentile(values: List[int], ratio: float) -> int:
+    if not values:
+        return 0
+    sorted_values = sorted(values)
+    index = int(ratio * (len(sorted_values) - 1))
+    return sorted_values[index]
 
 
 def summarize(rows: List[dict]) -> str:
@@ -488,6 +499,7 @@ def summarize(rows: List[dict]) -> str:
         f"- mean cap resets: {statistics.mean(cap_resets):.2f}",
         f"- p10 attempts: {p10:.2f}",
         f"- p90 attempts: {p90:.2f}",
+        f"- p95 attempts: {percentile(attempts, 0.95):.2f}",
         "",
         "## Material Sources",
         "",
@@ -499,12 +511,44 @@ def summarize(rows: List[dict]) -> str:
         "",
     ]
 
+    lines.extend(segment_summary(rows))
+
     if statistics.mean(attempts) > 500:
         lines.append("- warning: progression is very slow")
     if reached_count / len(rows) < 0.5:
         lines.append("- warning: many runs fail to reach the target")
 
     return "\n".join(lines)
+
+
+def segment_summary(rows: List[dict]) -> List[str]:
+    grouped: Dict[Tuple[str, str], List[dict]] = {}
+    for row in rows:
+        key = (row["start_weapon_id"], row["target_weapon_id"])
+        grouped.setdefault(key, []).append(row)
+
+    lines = ["## Segments", ""]
+    for key, segment_rows in grouped.items():
+        segment_attempts = [row["attempts"] for row in segment_rows]
+        reached_count = sum(1 for row in segment_rows if row["reached"])
+        destructions = [row["destructions"] for row in segment_rows]
+        repurchases = [row["repurchases"] for row in segment_rows]
+        cap_resets = [row["cap_resets"] for row in segment_rows]
+        lines.extend([
+            f"### {key[0]} -> {key[1]}",
+            "",
+            f"- simulations: {len(segment_rows)}",
+            f"- reached rate: {reached_count / len(segment_rows):.2%}",
+            f"- mean attempts: {statistics.mean(segment_attempts):.2f}",
+            f"- p90 attempts: {percentile(segment_attempts, 0.90):.2f}",
+            f"- p95 attempts: {percentile(segment_attempts, 0.95):.2f}",
+            f"- max attempts: {max(segment_attempts)}",
+            f"- mean destructions: {statistics.mean(destructions):.2f}",
+            f"- mean repurchases: {statistics.mean(repurchases):.2f}",
+            f"- mean cap resets: {statistics.mean(cap_resets):.2f}",
+            "",
+        ])
+    return lines
 
 
 def main() -> None:
@@ -562,6 +606,7 @@ def main() -> None:
                     "evolutions",
                     "cap_resets",
                     "reached",
+                    "initial_gold",
                     "material_sources",
                     "material_sinks",
                     "remaining_materials",

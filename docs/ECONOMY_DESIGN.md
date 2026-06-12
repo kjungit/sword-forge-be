@@ -57,3 +57,16 @@
 - `scripts/simulate_balance.py` runs progression simulations from each grade milestone to the next.
 - Simulator output includes completion rate, attempt percentiles, destruction count, repurchases, evolutions, cap resets, material/gold sources, and material/gold sinks.
 - Balance tuning should watch both mean attempts and p90 attempts, because probability systems can feel broken when only the long-tail cases are bad.
+
+## Current Balance Checkpoint
+
+Checked with `python3 scripts/simulate_balance.py --runs 300 --max-attempts 1000`.
+
+- Overall reached rate: 99.17%
+- Overall mean attempts: 19.52
+- Overall p90 attempts: 37
+- Overall p95 attempts: 43
+- Legendary segment reached rate: 96.67%
+- Legendary segment p90 attempts: 16
+
+Legendary enhancement gold costs were lowered to keep high-grade failure streaks from stopping mainly because of gold starvation.
