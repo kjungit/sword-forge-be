@@ -60,6 +60,14 @@ class SecurityIntegrationTests {
     }
 
     @Test
+    void authenticatedPlayerCannotReadAnotherUsersProbabilityState() throws Exception {
+        mockMvc.perform(get("/api/v1/probabilities/enhance/normal_01")
+                        .param("userId", "bob")
+                        .header("Authorization", basicAuth("alice", "password")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void regularPlayerCannotUpsertSaveDirectly() throws Exception {
         String body = """
                 {
