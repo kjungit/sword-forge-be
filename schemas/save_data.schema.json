@@ -10,6 +10,7 @@
     "materials",
     "specialItems",
     "weaponInventory",
+    "lockedWeaponIds",
     "ownedWeaponIds",
     "unlockedWeaponShop",
     "discoveredWeaponIds",
@@ -31,6 +32,10 @@
     "weaponInventory": {
       "type": "object",
       "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "lockedWeaponIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
     },
     "ownedWeaponIds": {
       "type": "array",

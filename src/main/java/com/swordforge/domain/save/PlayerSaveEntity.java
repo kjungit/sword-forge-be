@@ -28,6 +28,9 @@ public class PlayerSaveEntity {
     @Column(name = "weapon_inventory_json", nullable = false, columnDefinition = "text")
     private String weaponInventoryJson;
 
+    @Column(name = "locked_weapon_ids_json", nullable = false, columnDefinition = "text")
+    private String lockedWeaponIdsJson;
+
     @Column(name = "owned_weapon_ids_json", nullable = false, columnDefinition = "text")
     private String ownedWeaponIdsJson;
 
@@ -59,6 +62,7 @@ public class PlayerSaveEntity {
             String materialsJson,
             String specialItemsJson,
             String weaponInventoryJson,
+            String lockedWeaponIdsJson,
             String ownedWeaponIdsJson,
             String unlockedWeaponShopJson,
             String discoveredWeaponIdsJson,
@@ -71,6 +75,7 @@ public class PlayerSaveEntity {
         this.materialsJson = materialsJson;
         this.specialItemsJson = specialItemsJson;
         this.weaponInventoryJson = weaponInventoryJson;
+        this.lockedWeaponIdsJson = lockedWeaponIdsJson;
         this.ownedWeaponIdsJson = ownedWeaponIdsJson;
         this.unlockedWeaponShopJson = unlockedWeaponShopJson;
         this.discoveredWeaponIdsJson = discoveredWeaponIdsJson;
@@ -97,6 +102,10 @@ public class PlayerSaveEntity {
 
     public String getWeaponInventoryJson() {
         return weaponInventoryJson;
+    }
+
+    public String getLockedWeaponIdsJson() {
+        return lockedWeaponIdsJson;
     }
 
     public String getOwnedWeaponIdsJson() {
@@ -141,6 +150,10 @@ public class PlayerSaveEntity {
 
     public void setWeaponInventoryJson(String weaponInventoryJson) {
         this.weaponInventoryJson = weaponInventoryJson;
+    }
+
+    public void setLockedWeaponIdsJson(String lockedWeaponIdsJson) {
+        this.lockedWeaponIdsJson = lockedWeaponIdsJson;
     }
 
     public void setOwnedWeaponIdsJson(String ownedWeaponIdsJson) {

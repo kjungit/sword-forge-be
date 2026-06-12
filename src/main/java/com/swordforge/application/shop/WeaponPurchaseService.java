@@ -64,6 +64,7 @@ public class WeaponPurchaseService {
                     remainingMaterials,
                     save.specialItems(),
                     updatedInventory,
+                    save.lockedWeaponIds(),
                     playerSaveService.deriveOwnedWeaponIds(updatedInventory),
                     unlockedWeaponShop,
                     discoveredWeaponIds,
@@ -94,6 +95,9 @@ public class WeaponPurchaseService {
             if (ownedCount < amount) {
                 throw new IllegalArgumentException("not enough weapon copies: " + weaponId);
             }
+            if (save.lockedWeaponIds().contains(weaponId)) {
+                throw new IllegalArgumentException("weapon is locked: " + weaponId);
+            }
             if (totalOwnedWeaponCount(save.weaponInventory()) <= amount) {
                 throw new IllegalArgumentException("cannot sell all owned weapons");
             }
@@ -111,6 +115,7 @@ public class WeaponPurchaseService {
                     updatedMaterials,
                     save.specialItems(),
                     updatedInventory,
+                    save.lockedWeaponIds(),
                     playerSaveService.deriveOwnedWeaponIds(updatedInventory),
                     save.unlockedWeaponShop(),
                     save.discoveredWeaponIds(),

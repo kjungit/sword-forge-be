@@ -11,6 +11,7 @@ public record SaveUpsertRequest(
         @NotNull Map<String, Integer> materials,
         @NotNull Map<String, Integer> specialItems,
         @NotNull Map<String, Integer> weaponInventory,
+        List<String> lockedWeaponIds,
         @NotNull List<String> ownedWeaponIds,
         @NotNull List<String> unlockedWeaponShop,
         @NotNull List<String> discoveredWeaponIds,

@@ -62,6 +62,7 @@ public class EvolutionService {
                 updatedMaterials,
                 currentSave.specialItems(),
                 updatedInventory,
+                currentSave.lockedWeaponIds(),
                 ownedWeaponIds,
                 unlockedWeaponShop,
                 discoveredWeaponIds,

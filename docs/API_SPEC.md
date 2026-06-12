@@ -39,6 +39,32 @@ Body:
 
 The server rejects weapons that are not present in `weaponInventory`.
 
+### `POST /weapons/lock`
+
+Locks an owned weapon id to prevent accidental sale.
+
+Body:
+
+```json
+{
+  "userId": "local_user",
+  "weaponId": "normal_02"
+}
+```
+
+### `POST /weapons/unlock`
+
+Removes the sale lock from a weapon id.
+
+Body:
+
+```json
+{
+  "userId": "local_user",
+  "weaponId": "normal_02"
+}
+```
+
 ## Save Data
 
 ### `GET /saves/{userId}`
@@ -57,6 +83,7 @@ Body:
   "materials": { "gold": 20 },
   "specialItems": {},
   "weaponInventory": { "normal_01": 1 },
+  "lockedWeaponIds": [],
   "ownedWeaponIds": ["normal_01"],
   "unlockedWeaponShop": ["normal_01"],
   "discoveredWeaponIds": ["normal_01"],
@@ -140,6 +167,8 @@ Body:
 ```
 
 The server rejects selling every owned weapon. If the equipped weapon is sold and no copy remains, the server equips the best remaining owned weapon.
+
+The server rejects sale of weapon ids listed in `lockedWeaponIds`.
 
 ## Evolution
 

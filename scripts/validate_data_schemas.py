@@ -335,6 +335,7 @@ def cross_validate() -> list[str]:
         "materials": {"gold": 20},
         "specialItems": {},
         "weaponInventory": {"normal_01": 1},
+        "lockedWeaponIds": [],
         "ownedWeaponIds": ["normal_01"],
         "unlockedWeaponShop": ["normal_01"],
         "discoveredWeaponIds": ["normal_01"],

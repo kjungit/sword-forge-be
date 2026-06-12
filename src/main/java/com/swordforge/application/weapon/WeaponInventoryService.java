@@ -34,6 +34,7 @@ public class WeaponInventoryService {
                     save.materials(),
                     save.specialItems(),
                     save.weaponInventory(),
+                    save.lockedWeaponIds(),
                     playerSaveService.deriveOwnedWeaponIds(save.weaponInventory()),
                     save.unlockedWeaponShop(),
                     save.discoveredWeaponIds(),
@@ -42,5 +43,48 @@ public class WeaponInventoryService {
                     Instant.now()
             );
         });
+    }
+
+    @Transactional
+    public PlayerSaveData lock(String userId, String weaponId) {
+        weaponCatalogService.findById(weaponId);
+        return playerSaveService.mutate(userId, save -> {
+            if (save.weaponInventory().getOrDefault(weaponId, 0) <= 0) {
+                throw new IllegalArgumentException("weapon is not owned: " + weaponId);
+            }
+            return new PlayerSaveData(
+                    save.userId(),
+                    save.currentWeaponId(),
+                    save.materials(),
+                    save.specialItems(),
+                    save.weaponInventory(),
+                    playerSaveService.appendUnique(save.lockedWeaponIds(), weaponId),
+                    playerSaveService.deriveOwnedWeaponIds(save.weaponInventory()),
+                    save.unlockedWeaponShop(),
+                    save.discoveredWeaponIds(),
+                    save.highestReachedWeaponId(),
+                    save.pityStacks(),
+                    Instant.now()
+            );
+        });
+    }
+
+    @Transactional
+    public PlayerSaveData unlock(String userId, String weaponId) {
+        weaponCatalogService.findById(weaponId);
+        return playerSaveService.mutate(userId, save -> new PlayerSaveData(
+                save.userId(),
+                save.currentWeaponId(),
+                save.materials(),
+                save.specialItems(),
+                save.weaponInventory(),
+                playerSaveService.removeValue(save.lockedWeaponIds(), weaponId),
+                playerSaveService.deriveOwnedWeaponIds(save.weaponInventory()),
+                save.unlockedWeaponShop(),
+                save.discoveredWeaponIds(),
+                save.highestReachedWeaponId(),
+                save.pityStacks(),
+                Instant.now()
+        ));
     }
 }

@@ -50,6 +50,7 @@ public class PlayerSaveService {
                 Map.copyOf(saveData.materials()),
                 Map.copyOf(saveData.specialItems()),
                 Map.copyOf(saveData.weaponInventory()),
+                saveData.lockedWeaponIds() == null ? List.of() : List.copyOf(saveData.lockedWeaponIds()),
                 ownedWeaponIds,
                 List.copyOf(saveData.unlockedWeaponShop()),
                 List.copyOf(saveData.discoveredWeaponIds()),
@@ -122,6 +123,15 @@ public class PlayerSaveService {
         return List.copyOf(updated);
     }
 
+    public List<String> removeValue(List<String> source, String value) {
+        if (!source.contains(value)) {
+            return source;
+        }
+        List<String> updated = new java.util.ArrayList<>(source);
+        updated.removeIf(value::equals);
+        return List.copyOf(updated);
+    }
+
     public Map<String, Integer> addWeaponCount(Map<String, Integer> inventory, String weaponId, int amount) {
         if (amount <= 0) {
             return Map.copyOf(inventory);
@@ -186,6 +196,7 @@ public class PlayerSaveService {
                 Map.of(GOLD_MATERIAL_ID, 20),
                 Map.of(),
                 Map.of("normal_01", 1),
+                List.of(),
                 List.of("normal_01"),
                 List.of("normal_01"),
                 List.of("normal_01"),
@@ -202,6 +213,7 @@ public class PlayerSaveService {
                 readMap(entity.getMaterialsJson()),
                 readMap(entity.getSpecialItemsJson()),
                 readMap(entity.getWeaponInventoryJson()),
+                readList(entity.getLockedWeaponIdsJson()),
                 readList(entity.getOwnedWeaponIdsJson()),
                 readList(entity.getUnlockedWeaponShopJson()),
                 readList(entity.getDiscoveredWeaponIdsJson()),
@@ -218,6 +230,7 @@ public class PlayerSaveService {
                 writeJson(data.materials()),
                 writeJson(data.specialItems()),
                 writeJson(data.weaponInventory()),
+                writeJson(data.lockedWeaponIds()),
                 writeJson(data.ownedWeaponIds()),
                 writeJson(data.unlockedWeaponShop()),
                 writeJson(data.discoveredWeaponIds()),
@@ -232,6 +245,7 @@ public class PlayerSaveService {
         entity.setMaterialsJson(writeJson(data.materials()));
         entity.setSpecialItemsJson(writeJson(data.specialItems()));
         entity.setWeaponInventoryJson(writeJson(data.weaponInventory()));
+        entity.setLockedWeaponIdsJson(writeJson(data.lockedWeaponIds()));
         entity.setOwnedWeaponIdsJson(writeJson(data.ownedWeaponIds()));
         entity.setUnlockedWeaponShopJson(writeJson(data.unlockedWeaponShop()));
         entity.setDiscoveredWeaponIdsJson(writeJson(data.discoveredWeaponIds()));

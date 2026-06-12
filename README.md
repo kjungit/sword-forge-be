@@ -25,6 +25,7 @@
 - JSON schema validation script for game data
 - balance simulator and cross-file data checks
 - grade-floor protection, pity stacks, and evolution-only grade upgrades
+- stored weapon equip and sale lock controls
 - gold economy for enhancement fees, weapon sale, and item purchases
 - optimistic locking and enhancement audit details
 

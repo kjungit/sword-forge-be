@@ -7,6 +7,9 @@
 - `GET /api/v1/weapons/{weaponId}` returns a valid sword.
 - `POST /api/v1/weapons/equip` changes the current weapon to an owned stored sword.
 - Equipping a sword that is not in `weaponInventory` is rejected.
+- `POST /api/v1/weapons/lock` adds a sword id to `lockedWeaponIds`.
+- `POST /api/v1/weapons/unlock` removes a sword id from `lockedWeaponIds`.
+- Selling a locked sword is rejected.
 - `/swagger-ui.html` loads the Swagger UI.
 - `/v3/api-docs` returns OpenAPI JSON.
 

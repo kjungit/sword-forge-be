@@ -151,6 +151,73 @@ class GameFlowIntegrationTests {
     }
 
     @Test
+    void weaponLockEndpointPreventsSaleUntilUnlocked() throws Exception {
+        String userId = "lock-sale-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_02",
+                Map.of("gold", 10),
+                Map.of(),
+                Map.of("normal_01", 1, "normal_02", 1),
+                List.of("normal_01", "normal_02"),
+                List.of("normal_01", "normal_02"),
+                List.of("normal_01", "normal_02"),
+                "normal_02",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+        String body = """
+                {
+                  "userId": "lock-sale-user",
+                  "weaponId": "normal_02"
+                }
+                """;
+
+        mockMvc.perform(
+                        post("/api/v1/weapons/lock")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.lockedWeaponIds[0]").value("normal_02"));
+
+        IllegalArgumentException locked = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> weaponPurchaseService.sell(userId, "normal_02", 1)
+        );
+        Assertions.assertTrue(locked.getMessage().contains("locked"));
+
+        mockMvc.perform(
+                        post("/api/v1/weapons/unlock")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.lockedWeaponIds.length()").value(0));
+
+        WeaponPurchaseService.SaleResult result = weaponPurchaseService.sell(userId, "normal_02", 1);
+        Assertions.assertEquals(14, result.remainingGold());
+    }
+
+    @Test
+    void weaponLockEndpointRejectsUnownedWeapon() throws Exception {
+        String body = """
+                {
+                  "userId": "lock-unowned-user",
+                  "weaponId": "normal_02"
+                }
+                """;
+
+        mockMvc.perform(
+                        post("/api/v1/weapons/lock")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     void specialItemGrantEndpointUpdatesSave() throws Exception {
         String body = """
                 {

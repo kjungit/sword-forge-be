@@ -12,6 +12,8 @@
 - First reach unlocks repurchase for that sword.
 - Once a non-normal grade is discovered, a destroy failure cannot drop the player below that grade's first sword.
 - Stored swords can be sold for configured gold prices.
+- Stored swords can be locked to prevent accidental sale.
+- Locked swords cannot be sold until unlocked.
 - Selling every owned sword is rejected.
 - Purchased swords consume materials.
 - Special items can be purchased with gold.

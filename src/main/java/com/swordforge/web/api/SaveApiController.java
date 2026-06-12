@@ -39,6 +39,7 @@ public class SaveApiController {
                         request.materials(),
                         request.specialItems(),
                         request.weaponInventory(),
+                        request.lockedWeaponIds() == null ? java.util.List.of() : request.lockedWeaponIds(),
                         request.ownedWeaponIds(),
                         request.unlockedWeaponShop(),
                         request.discoveredWeaponIds(),
