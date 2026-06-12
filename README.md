@@ -23,6 +23,7 @@
 - Swagger UI and OpenAPI JSON
 - paginated log queries
 - signed economy ledger queries
+- player-facing enhancement probability disclosure
 - JSON schema validation script for game data
 - balance simulator and cross-file data checks
 - grade-floor protection, pity stacks, and evolution-only grade upgrades
@@ -62,4 +63,4 @@ Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
 1. Replace basic runtime authentication with player/admin identity flows.
 2. Tune progression balance and material yields from simulation output.
 3. Add deployment profiles and production secret management.
-4. Add player-facing probability disclosure endpoints when a client UI is ready.
+4. Add production monitoring and rate limiting before public launch.

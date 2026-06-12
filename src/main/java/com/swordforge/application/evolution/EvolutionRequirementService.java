@@ -49,5 +49,8 @@ public class EvolutionRequirementService {
         }
         return requirement;
     }
-}
 
+    public boolean exists(String weaponId) {
+        return requirementByWeaponId.containsKey(weaponId);
+    }
+}

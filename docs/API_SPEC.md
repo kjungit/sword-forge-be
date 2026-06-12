@@ -232,6 +232,28 @@ Body:
 }
 ```
 
+## Probabilities
+
+### `GET /probabilities/enhance/{weaponId}`
+
+Returns the disclosed enhancement probability for a weapon.
+
+Query params:
+- `userId`: optional. When present, user-specific pity stacks are included.
+- `useProtection`: optional boolean, default `false`.
+- `rateBoostItemId`: optional enhancement-rate boost item id.
+
+Response includes:
+- `baseSuccessRate`
+- `adjustedSuccessRate`
+- `failRate`
+- `goldCost`
+- `enhancementAvailable`
+- `requiresEvolution`
+- `pityStack` and `pityBonus`
+- `protectionBonus`
+- `rateBoostBonus`
+
 ## Logs
 
 ### `GET /logs/enhance/{userId}`

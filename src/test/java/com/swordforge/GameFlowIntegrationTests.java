@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.closeTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -360,6 +361,44 @@ class GameFlowIntegrationTests {
         Assertions.assertEquals("normal_02", preview.nextWeaponId());
         Assertions.assertEquals(0.97, preview.baseSuccessRate(), 0.0001);
         Assertions.assertEquals(1, preview.goldCost());
+    }
+
+    @Test
+    void probabilityEndpointReturnsAdjustedEnhanceRates() throws Exception {
+        String userId = "probability-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "rare_07",
+                Map.of("gold", 100),
+                Map.of("enhance_rate_boost_10", 1),
+                Map.of("normal_01", 1, "rare_07", 1),
+                List.of("normal_01", "rare_07"),
+                List.of("normal_01", "rare_07"),
+                List.of("normal_01", "rare_07"),
+                "rare_07",
+                Map.of("rare", 3),
+                java.time.Instant.now()
+        ));
+
+        mockMvc.perform(get("/api/v1/probabilities/enhance/{weaponId}", "rare_07")
+                        .param("userId", userId)
+                        .param("useProtection", "true")
+                        .param("rateBoostItemId", "enhance_rate_boost_10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.baseSuccessRate").value(0.58))
+                .andExpect(jsonPath("$.data.pityStack").value(3))
+                .andExpect(jsonPath("$.data.pityBonus").value(0.06))
+                .andExpect(jsonPath("$.data.protectionBonus").value(0.05))
+                .andExpect(jsonPath("$.data.rateBoostBonus").value(0.1))
+                .andExpect(jsonPath("$.data.adjustedSuccessRate").value(closeTo(0.79, 0.0001)));
+    }
+
+    @Test
+    void probabilityEndpointMarksEvolutionBoundaries() throws Exception {
+        mockMvc.perform(get("/api/v1/probabilities/enhance/{weaponId}", "normal_10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.enhancementAvailable").value(false))
+                .andExpect(jsonPath("$.data.requiresEvolution").value(true));
     }
 
     @Test

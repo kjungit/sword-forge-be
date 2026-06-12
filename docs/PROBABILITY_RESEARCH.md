@@ -38,8 +38,8 @@ Checked on 2026-06-11.
 - Enhancement logs store audit details with pity values, roll, threshold, and failure rewards.
 - Grade upgrades require evolution, which makes progression rules less ambiguous than letting enhancement silently cross grade boundaries.
 - Balance simulation reports completion rate, attempt percentiles, source totals, and sink totals.
+- Enhancement probability disclosure is available through `GET /api/v1/probabilities/enhance/{weaponId}`.
 
 ## Future Candidate
 
-- Add a dedicated probability disclosure endpoint for UI clients, for example `GET /api/v1/probabilities/enhance/{weaponId}`.
 - Add a hard-pity or craft guarantee only if simulation p90/p95 remains too high after content-side tuning.

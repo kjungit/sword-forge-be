@@ -74,6 +74,12 @@
 - Weapon sale writes a positive economy ledger amount for `gold`.
 - Item purchase writes a negative economy ledger amount for `gold`.
 
+## Probabilities
+
+- `GET /api/v1/probabilities/enhance/{weaponId}` returns base and adjusted success rates.
+- Probability disclosure includes pity, protection, and rate boost bonuses.
+- Grade-cap weapons report `requiresEvolution=true`.
+
 ## Security
 
 - Runtime APIs require HTTP Basic authentication when `app.security.enabled=true`.

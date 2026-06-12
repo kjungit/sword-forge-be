@@ -30,6 +30,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Special item catalog, grant, consume, and purchase endpoints
 - Enhancement logs and reward logs endpoints with pagination and filters
 - Economy ledger log endpoint with signed source/sink entries
+- Enhancement probability disclosure endpoint
 - Grade-bound enhancement, evolution-only grade upgrades, grade-floor protection, and pity stacks
 - Gold economy for enhancement fees, weapon sale, and special-item purchases
 - Optimistic save locking for concurrent mutation defense
