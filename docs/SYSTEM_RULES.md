@@ -24,6 +24,7 @@
 - Pity stacks increase on enhancement failure and add a capped success-rate bonus for the same grade.
 - Enhancement success keeps the current grade pity stack; evolution success clears it.
 - Enhancement and purchase operations are transactional.
+- Runtime player requests can only mutate or read their own `userId` unless the caller is an admin.
 - Enhancement failures and special-item grants are recorded in reward logs.
 - Weapon sales and special-item purchases are recorded in reward logs.
 - Enhancement attempt logs include audit details such as pity values and failure rewards.

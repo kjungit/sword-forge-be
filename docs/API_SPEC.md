@@ -8,6 +8,8 @@ OpenAPI JSON: `/v3/api-docs`
 
 Runtime API requests require HTTP Basic authentication unless `app.security.enabled=false` is set for a local or test profile. Health and Swagger/OpenAPI endpoints are public.
 
+When runtime security is enabled, regular players can only access requests whose `userId` matches the authenticated username. Admin users are allowed to access other player ids.
+
 ## Health
 
 ### `GET /health`

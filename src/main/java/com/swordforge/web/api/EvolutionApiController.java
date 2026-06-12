@@ -2,6 +2,7 @@ package com.swordforge.web.api;
 
 import com.swordforge.application.evolution.EvolutionService;
 import com.swordforge.common.api.ApiResponse;
+import com.swordforge.common.security.RequestUserGuard;
 import com.swordforge.web.dto.EvolutionAttemptRequest;
 import com.swordforge.web.dto.EvolutionResponse;
 import jakarta.validation.Valid;
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class EvolutionApiController {
 
     private final EvolutionService evolutionService;
+    private final RequestUserGuard requestUserGuard;
 
-    public EvolutionApiController(EvolutionService evolutionService) {
+    public EvolutionApiController(EvolutionService evolutionService, RequestUserGuard requestUserGuard) {
         this.evolutionService = evolutionService;
+        this.requestUserGuard = requestUserGuard;
     }
 
     @GetMapping("/preview/{weaponId}")
@@ -29,6 +32,7 @@ public class EvolutionApiController {
 
     @PostMapping("/attempt")
     public ApiResponse<EvolutionResponse> attempt(@Valid @RequestBody EvolutionAttemptRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(EvolutionResponse.from(evolutionService.evolve(request.userId())));
     }
 }

@@ -75,6 +75,8 @@
 
 - Runtime APIs require HTTP Basic authentication when `app.security.enabled=true`.
 - Health, Swagger UI, and OpenAPI JSON remain public.
+- Authenticated players can access their own `userId`.
+- Authenticated players are forbidden from accessing another player's `userId`.
 
 ## Data and Balance
 

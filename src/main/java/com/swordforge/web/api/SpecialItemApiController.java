@@ -3,6 +3,7 @@ package com.swordforge.web.api;
 import com.swordforge.application.item.SpecialItemCatalogService;
 import com.swordforge.application.item.SpecialItemService;
 import com.swordforge.common.api.ApiResponse;
+import com.swordforge.common.security.RequestUserGuard;
 import com.swordforge.web.dto.SaveDataResponse;
 import com.swordforge.web.dto.SpecialItemPurchaseResponse;
 import com.swordforge.web.dto.SpecialItemResponse;
@@ -23,13 +24,16 @@ public class SpecialItemApiController {
 
     private final SpecialItemCatalogService specialItemCatalogService;
     private final SpecialItemService specialItemService;
+    private final RequestUserGuard requestUserGuard;
 
     public SpecialItemApiController(
             SpecialItemCatalogService specialItemCatalogService,
-            SpecialItemService specialItemService
+            SpecialItemService specialItemService,
+            RequestUserGuard requestUserGuard
     ) {
         this.specialItemCatalogService = specialItemCatalogService;
         this.specialItemService = specialItemService;
+        this.requestUserGuard = requestUserGuard;
     }
 
     @GetMapping
@@ -46,6 +50,7 @@ public class SpecialItemApiController {
 
     @PostMapping("/grant")
     public ApiResponse<SaveDataResponse> grant(@Valid @RequestBody SpecialItemUseRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SaveDataResponse.from(
                 specialItemService.grant(request.userId(), request.itemId(), request.amount())
         ));
@@ -53,6 +58,7 @@ public class SpecialItemApiController {
 
     @PostMapping("/consume")
     public ApiResponse<SaveDataResponse> consume(@Valid @RequestBody SpecialItemUseRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SaveDataResponse.from(
                 specialItemService.consume(request.userId(), request.itemId(), request.amount())
         ));
@@ -60,6 +66,7 @@ public class SpecialItemApiController {
 
     @PostMapping("/purchase")
     public ApiResponse<SpecialItemPurchaseResponse> purchase(@Valid @RequestBody SpecialItemUseRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SpecialItemPurchaseResponse.from(
                 specialItemService.purchase(request.userId(), request.itemId(), request.amount())
         ));

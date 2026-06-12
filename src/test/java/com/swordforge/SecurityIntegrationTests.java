@@ -6,10 +6,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = "app.security.enabled=true")
+@SpringBootTest(properties = {
+        "app.security.enabled=true",
+        "spring.security.user.name=alice",
+        "spring.security.user.password=password"
+})
 @AutoConfigureMockMvc
 class SecurityIntegrationTests {
 
@@ -33,5 +40,24 @@ class SecurityIntegrationTests {
     void apiRequiresAuthenticationWhenSecurityIsEnabled() throws Exception {
         mockMvc.perform(get("/api/v1/weapons"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void authenticatedPlayerCanAccessOwnSave() throws Exception {
+        mockMvc.perform(get("/api/v1/saves/alice")
+                        .header("Authorization", basicAuth("alice", "password")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void authenticatedPlayerCannotAccessAnotherUsersSave() throws Exception {
+        mockMvc.perform(get("/api/v1/saves/bob")
+                        .header("Authorization", basicAuth("alice", "password")))
+                .andExpect(status().isForbidden());
+    }
+
+    private String basicAuth(String username, String password) {
+        String token = username + ":" + password;
+        return "Basic " + Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
     }
 }

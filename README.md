@@ -28,6 +28,7 @@
 - stored weapon equip and sale lock controls
 - gold economy for enhancement fees, weapon sale, and item purchases
 - optimistic locking and enhancement audit details
+- authenticated player requests are bound to their own `userId`
 
 ## Local API docs
 

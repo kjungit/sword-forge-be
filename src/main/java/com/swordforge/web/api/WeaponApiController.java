@@ -3,6 +3,7 @@ package com.swordforge.web.api;
 import com.swordforge.application.weapon.WeaponCatalogService;
 import com.swordforge.application.weapon.WeaponInventoryService;
 import com.swordforge.common.api.ApiResponse;
+import com.swordforge.common.security.RequestUserGuard;
 import com.swordforge.web.dto.SaveDataResponse;
 import com.swordforge.web.dto.WeaponEquipRequest;
 import com.swordforge.web.dto.WeaponLockRequest;
@@ -23,13 +24,16 @@ public class WeaponApiController {
 
     private final WeaponCatalogService weaponCatalogService;
     private final WeaponInventoryService weaponInventoryService;
+    private final RequestUserGuard requestUserGuard;
 
     public WeaponApiController(
             WeaponCatalogService weaponCatalogService,
-            WeaponInventoryService weaponInventoryService
+            WeaponInventoryService weaponInventoryService,
+            RequestUserGuard requestUserGuard
     ) {
         this.weaponCatalogService = weaponCatalogService;
         this.weaponInventoryService = weaponInventoryService;
+        this.requestUserGuard = requestUserGuard;
     }
 
     @GetMapping
@@ -46,6 +50,7 @@ public class WeaponApiController {
 
     @PostMapping("/equip")
     public ApiResponse<SaveDataResponse> equip(@Valid @RequestBody WeaponEquipRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SaveDataResponse.from(
                 weaponInventoryService.equip(request.userId(), request.weaponId())
         ));
@@ -53,6 +58,7 @@ public class WeaponApiController {
 
     @PostMapping("/lock")
     public ApiResponse<SaveDataResponse> lock(@Valid @RequestBody WeaponLockRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SaveDataResponse.from(
                 weaponInventoryService.lock(request.userId(), request.weaponId())
         ));
@@ -60,6 +66,7 @@ public class WeaponApiController {
 
     @PostMapping("/unlock")
     public ApiResponse<SaveDataResponse> unlock(@Valid @RequestBody WeaponLockRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(SaveDataResponse.from(
                 weaponInventoryService.unlock(request.userId(), request.weaponId())
         ));

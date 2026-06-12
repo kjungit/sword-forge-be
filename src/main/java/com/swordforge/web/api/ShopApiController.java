@@ -2,6 +2,7 @@ package com.swordforge.web.api;
 
 import com.swordforge.application.shop.WeaponPurchaseService;
 import com.swordforge.common.api.ApiResponse;
+import com.swordforge.common.security.RequestUserGuard;
 import com.swordforge.web.dto.WeaponPurchaseRequest;
 import com.swordforge.web.dto.WeaponPurchaseResponse;
 import com.swordforge.web.dto.WeaponSaleRequest;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShopApiController {
 
     private final WeaponPurchaseService weaponPurchaseService;
+    private final RequestUserGuard requestUserGuard;
 
-    public ShopApiController(WeaponPurchaseService weaponPurchaseService) {
+    public ShopApiController(WeaponPurchaseService weaponPurchaseService, RequestUserGuard requestUserGuard) {
         this.weaponPurchaseService = weaponPurchaseService;
+        this.requestUserGuard = requestUserGuard;
     }
 
     @GetMapping("/preview/{weaponId}")
@@ -36,6 +39,7 @@ public class ShopApiController {
 
     @PostMapping("/purchase")
     public ApiResponse<WeaponPurchaseResponse> purchase(@Valid @RequestBody WeaponPurchaseRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(WeaponPurchaseResponse.from(
                 weaponPurchaseService.purchase(request.userId(), request.weaponId())
         ));
@@ -43,6 +47,7 @@ public class ShopApiController {
 
     @PostMapping("/sell")
     public ApiResponse<WeaponSaleResponse> sell(@Valid @RequestBody WeaponSaleRequest request) {
+        requestUserGuard.requireSelfOrAdmin(request.userId());
         return ApiResponse.ok(WeaponSaleResponse.from(
                 weaponPurchaseService.sell(request.userId(), request.weaponId(), request.amount())
         ));

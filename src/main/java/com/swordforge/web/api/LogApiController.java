@@ -3,6 +3,7 @@ package com.swordforge.web.api;
 import com.swordforge.application.reward.RewardLogService;
 import com.swordforge.common.api.ApiResponse;
 import com.swordforge.common.api.PageResponse;
+import com.swordforge.common.security.RequestUserGuard;
 import com.swordforge.web.dto.EnhanceAttemptLogResponse;
 import com.swordforge.web.dto.RewardGrantLogResponse;
 import org.springframework.data.domain.PageRequest;
@@ -19,13 +20,16 @@ public class LogApiController {
 
     private final RewardLogService rewardLogService;
     private final com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository;
+    private final RequestUserGuard requestUserGuard;
 
     public LogApiController(
             RewardLogService rewardLogService,
-            com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository
+            com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository,
+            RequestUserGuard requestUserGuard
     ) {
         this.rewardLogService = rewardLogService;
         this.enhanceAttemptRepository = enhanceAttemptRepository;
+        this.requestUserGuard = requestUserGuard;
     }
 
     @GetMapping("/enhance/{userId}")
@@ -36,6 +40,7 @@ public class LogApiController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
         Pageable pageable = pageRequest(page, size);
         return ApiResponse.ok(PageResponse.from(enhanceAttemptRepository
                 .findByUserIdWithFilters(userId, blankToNull(outcome), protectionUsed, pageable)
@@ -50,6 +55,7 @@ public class LogApiController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
         Pageable pageable = pageRequest(page, size);
         return ApiResponse.ok(PageResponse.from(rewardLogService
                 .findByUserId(userId, rewardKind, sourceType, pageable)
