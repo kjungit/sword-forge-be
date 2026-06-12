@@ -20,6 +20,8 @@
 - Save responses include `pityStacks`.
 - Default saves include starter `materials.gold`.
 - Concurrent save mutations should return conflict instead of silently overwriting state.
+- Concurrent enhancement attempts for the same current sword apply at most once.
+- Concurrent sale attempts for the same stored sword copy apply at most once.
 
 ## Enhance
 
