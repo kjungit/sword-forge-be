@@ -24,6 +24,21 @@ Returns the full weapon catalog.
 
 Returns one weapon by id.
 
+### `POST /weapons/equip`
+
+Equips a stored weapon copy owned by the player.
+
+Body:
+
+```json
+{
+  "userId": "local_user",
+  "weaponId": "normal_02"
+}
+```
+
+The server rejects weapons that are not present in `weaponInventory`.
+
 ## Save Data
 
 ### `GET /saves/{userId}`

@@ -20,6 +20,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 
 - Health check endpoint
 - Weapon catalog endpoints
+- Stored weapon equip endpoint
 - Save load and save upsert endpoints
 - Enhancement preview and attempt endpoints
 - Shop preview and purchase endpoints

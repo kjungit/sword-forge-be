@@ -18,7 +18,7 @@
 - shared API response and error handling
 - database migration scaffold
 - local database containers
-- weapon, save, enhance, shop, evolution, item, and log APIs
+- weapon, equip, save, enhance, shop, evolution, item, and log APIs
 - Basic Auth guard for non-test runtime
 - Swagger UI and OpenAPI JSON
 - paginated log queries

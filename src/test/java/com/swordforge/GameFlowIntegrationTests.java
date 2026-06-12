@@ -101,6 +101,56 @@ class GameFlowIntegrationTests {
     }
 
     @Test
+    void weaponEquipEndpointChangesCurrentWeaponFromStorage() throws Exception {
+        playerSaveService.upsert(new PlayerSaveData(
+                "equip-user",
+                "normal_03",
+                Map.of("gold", 20),
+                Map.of(),
+                Map.of("normal_01", 1, "normal_02", 1, "normal_03", 1),
+                List.of("normal_01", "normal_02", "normal_03"),
+                List.of("normal_01", "normal_02", "normal_03"),
+                List.of("normal_01", "normal_02", "normal_03"),
+                "normal_03",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+        String body = """
+                {
+                  "userId": "equip-user",
+                  "weaponId": "normal_02"
+                }
+                """;
+
+        mockMvc.perform(
+                        post("/api/v1/weapons/equip")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.currentWeaponId").value("normal_02"))
+                .andExpect(jsonPath("$.data.weaponInventory.normal_03").value(1));
+    }
+
+    @Test
+    void weaponEquipEndpointRejectsUnownedWeapon() throws Exception {
+        String body = """
+                {
+                  "userId": "equip-unowned-user",
+                  "weaponId": "normal_02"
+                }
+                """;
+
+        mockMvc.perform(
+                        post("/api/v1/weapons/equip")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
     void specialItemGrantEndpointUpdatesSave() throws Exception {
         String body = """
                 {

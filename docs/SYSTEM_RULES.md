@@ -3,6 +3,7 @@
 - The game core is sword forging.
 - Enhancement success advances to the next sword within the same grade.
 - Enhancement success keeps the previous sword copy in storage and adds the next sword.
+- Stored swords can be equipped again if the player owns at least one copy.
 - Grade upgrades are handled only by evolution.
 - Enhancement failure destroys the current sword.
 - Enhancement attempts consume a configured gold fee.
