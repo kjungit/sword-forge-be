@@ -77,6 +77,9 @@
 - Health, Swagger UI, and OpenAPI JSON remain public.
 - Authenticated players can access their own `userId`.
 - Authenticated players are forbidden from accessing another player's `userId`.
+- Regular players are forbidden from `PUT /api/v1/saves/{userId}`.
+- Regular players are forbidden from `POST /api/v1/items/grant`.
+- Admin users can call direct save upsert and item grant endpoints.
 
 ## Data and Balance
 

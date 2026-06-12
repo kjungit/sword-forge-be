@@ -36,7 +36,7 @@ public class SaveApiController {
             @PathVariable String userId,
             @Valid @RequestBody SaveUpsertRequest request
     ) {
-        requestUserGuard.requireSelfOrAdmin(userId);
+        requestUserGuard.requireAdmin();
         return ApiResponse.ok(SaveDataResponse.from(playerSaveService.upsert(
                 new com.swordforge.domain.save.PlayerSaveData(
                         userId,

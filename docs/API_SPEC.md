@@ -75,7 +75,7 @@ Loads or creates a player save.
 
 ### `PUT /saves/{userId}`
 
-Replaces the player save payload.
+Replaces the player save payload. This endpoint is admin-only when runtime security is enabled.
 
 Body:
 
@@ -202,7 +202,7 @@ Returns one special item by id.
 
 ### `POST /items/grant`
 
-Adds special items to a player's save.
+Adds special items to a player's save. This endpoint is admin-only when runtime security is enabled.
 
 Body:
 

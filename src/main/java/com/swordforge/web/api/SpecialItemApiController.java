@@ -50,7 +50,7 @@ public class SpecialItemApiController {
 
     @PostMapping("/grant")
     public ApiResponse<SaveDataResponse> grant(@Valid @RequestBody SpecialItemUseRequest request) {
-        requestUserGuard.requireSelfOrAdmin(request.userId());
+        requestUserGuard.requireAdmin();
         return ApiResponse.ok(SaveDataResponse.from(
                 specialItemService.grant(request.userId(), request.itemId(), request.amount())
         ));

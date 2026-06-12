@@ -10,57 +10,28 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
         "app.security.enabled=true",
-        "spring.security.user.name=alice",
-        "spring.security.user.password=password"
+        "spring.security.user.name=admin",
+        "spring.security.user.password=password",
+        "spring.security.user.roles=ADMIN"
 })
 @AutoConfigureMockMvc
-class SecurityIntegrationTests {
+class AdminSecurityIntegrationTests {
 
     private final MockMvc mockMvc;
 
     @Autowired
-    SecurityIntegrationTests(MockMvc mockMvc) {
+    AdminSecurityIntegrationTests(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
 
     @Test
-    void healthAndOpenApiRemainPublic() throws Exception {
-        mockMvc.perform(get("/api/v1/health"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/v3/api-docs"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void apiRequiresAuthenticationWhenSecurityIsEnabled() throws Exception {
-        mockMvc.perform(get("/api/v1/weapons"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void authenticatedPlayerCanAccessOwnSave() throws Exception {
-        mockMvc.perform(get("/api/v1/saves/alice")
-                        .header("Authorization", basicAuth("alice", "password")))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void authenticatedPlayerCannotAccessAnotherUsersSave() throws Exception {
-        mockMvc.perform(get("/api/v1/saves/bob")
-                        .header("Authorization", basicAuth("alice", "password")))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void regularPlayerCannotUpsertSaveDirectly() throws Exception {
+    void adminCanUpsertAnySave() throws Exception {
         String body = """
                 {
                   "currentWeaponId": "normal_01",
@@ -74,28 +45,28 @@ class SecurityIntegrationTests {
                 }
                 """;
 
-        mockMvc.perform(put("/api/v1/saves/alice")
-                        .header("Authorization", basicAuth("alice", "password"))
+        mockMvc.perform(put("/api/v1/saves/target-player")
+                        .header("Authorization", basicAuth("admin", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     @Test
-    void regularPlayerCannotGrantItems() throws Exception {
+    void adminCanGrantItemsToAnySave() throws Exception {
         String body = """
                 {
-                  "userId": "alice",
+                  "userId": "target-player",
                   "itemId": "enhance_rate_boost_5",
                   "amount": 1
                 }
                 """;
 
         mockMvc.perform(post("/api/v1/items/grant")
-                        .header("Authorization", basicAuth("alice", "password"))
+                        .header("Authorization", basicAuth("admin", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk());
     }
 
     private String basicAuth(String username, String password) {

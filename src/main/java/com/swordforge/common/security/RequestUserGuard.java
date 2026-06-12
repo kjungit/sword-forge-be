@@ -21,15 +21,31 @@ public class RequestUserGuard {
             return;
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertAuthenticated(authentication);
+        if (isAdmin(authentication) || authentication.getName().equals(userId)) {
+            return;
+        }
+        throw new AccessDeniedException("cannot access another user's data");
+    }
+
+    public void requireAdmin() {
+        if (!securityEnabled) {
+            return;
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertAuthenticated(authentication);
+        if (isAdmin(authentication)) {
+            return;
+        }
+        throw new AccessDeniedException("admin role required");
+    }
+
+    private void assertAuthenticated(Authentication authentication) {
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
             throw new AccessDeniedException("authentication required");
         }
-        if (isAdmin(authentication) || authentication.getName().equals(userId)) {
-            return;
-        }
-        throw new AccessDeniedException("cannot access another user's data");
     }
 
     private boolean isAdmin(Authentication authentication) {
