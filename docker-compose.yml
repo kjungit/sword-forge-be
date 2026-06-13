@@ -3,11 +3,11 @@ services:
     image: postgres:16
     container_name: sword-forge-postgres
     environment:
-      POSTGRES_DB: sword_forge
-      POSTGRES_USER: sword_forge
-      POSTGRES_PASSWORD: sword_forge
+      POSTGRES_DB: ${POSTGRES_DB:-sword_forge}
+      POSTGRES_USER: ${POSTGRES_USER:-sword_forge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sword_forge}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - sword_forge_postgres_data:/var/lib/postgresql/data
 
@@ -15,8 +15,7 @@ services:
     image: redis:7
     container_name: sword-forge-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
 
 volumes:
   sword_forge_postgres_data:
-

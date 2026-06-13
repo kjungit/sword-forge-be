@@ -3,8 +3,11 @@ build/
 out/
 .idea/
 *.iml
+.env
+.env.*
+!.env.example
+.local/
 *.log
 .DS_Store
 outputs/*
 !outputs/.gitkeep
-

@@ -42,6 +42,7 @@
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 - Frontend handoff: `docs/FRONTEND_HANDOFF.md`
+- Local testing guide: `docs/LOCAL_TESTING.md`
 
 ## Runtime security
 
@@ -56,6 +57,33 @@ When runtime security is enabled, mutation requests must include a CSRF token. C
 `GET /api/v1/security/csrf` and send the returned `headerName` with the returned `token`.
 Native clients that do not keep cookies automatically must also send
 `Cookie: XSRF-TOKEN={token}`.
+
+## Local server testing
+
+Use [.env.example](.env.example) as the shared local contract with the Godot frontend.
+The default local mode does not require Docker; it runs with the `local` Spring profile and an H2 database under `.local/`.
+
+```bash
+cp .env.example .env
+./scripts/local_server_start.sh
+python3 scripts/smoke_api.py
+```
+
+Frontend environment:
+
+```bash
+export SWORD_FORGE_API_BASE_URL=http://127.0.0.1:8080/api/v1
+export SWORD_FORGE_API_USER=local_user
+export SWORD_FORGE_API_PASSWORD=local_password
+```
+
+Stop the local server:
+
+```bash
+./scripts/local_server_stop.sh
+```
+
+For Docker/Postgres mode and deployment preflight checks, see `docs/LOCAL_TESTING.md`.
 
 ## GitHub Actions
 

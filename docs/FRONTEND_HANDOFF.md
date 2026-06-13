@@ -17,8 +17,12 @@ Frontend env values:
 ```text
 SWORD_FORGE_API_BASE_URL=http://127.0.0.1:8080/api/v1
 SWORD_FORGE_API_USER=local_user
-SWORD_FORGE_API_PASSWORD=<password>
+SWORD_FORGE_API_PASSWORD=local_password
 ```
+
+Backend local env values live in `.env.example`. Keep the frontend user/password aligned with `SPRING_SECURITY_USER_NAME` and `SPRING_SECURITY_USER_PASSWORD`.
+
+Backend local server and smoke-test instructions live in `docs/LOCAL_TESTING.md`.
 
 Before any `POST`, `PUT`, `PATCH`, or `DELETE`, call:
 
