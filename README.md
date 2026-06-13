@@ -24,6 +24,7 @@
 - paginated log queries
 - signed economy ledger queries
 - player-facing enhancement probability disclosure
+- GitHub Actions for CI, balance simulation, CodeQL, dependency review, and auto PR creation
 - JSON schema validation script for game data
 - balance simulator and cross-file data checks
 - grade-floor protection, pity stacks, and evolution-only grade upgrades
@@ -46,6 +47,16 @@ Runtime API security is enabled by default. Set credentials with:
 - `SPRING_SECURITY_USER_PASSWORD`
 
 Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
+
+## GitHub Actions
+
+- `CI`: runs Java tests and game-data schema validation.
+- `Balance Simulation`: runs the balance simulator and uploads the summary artifact.
+- `CodeQL`: runs Java security analysis.
+- `PR Review Checks`: runs dependency review and posts a review checklist comment.
+- `Auto PR`: opens or reuses a PR from `codex/**` branches into `dev`.
+
+`Auto PR` uses `GITHUB_TOKEN` by default. Add a repository secret named `PR_AUTOMATION_TOKEN` if you want PR-created events to use a dedicated token.
 
 ## Project structure
 

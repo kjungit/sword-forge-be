@@ -71,3 +71,12 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Rules under `docs/SYSTEM_RULES.md`
 - QA checklist under `docs/QA_CHECKLIST.md`
 - Economy notes under `docs/ECONOMY_DESIGN.md`
+
+## GitHub Automation
+
+- `.github/workflows/ci.yml`: test and schema validation on pushes and PRs.
+- `.github/workflows/balance.yml`: balance simulator on PRs and manual runs.
+- `.github/workflows/codeql.yml`: CodeQL analysis for Java/Kotlin.
+- `.github/workflows/pr-review.yml`: dependency review and automated PR checklist comment.
+- `.github/workflows/auto-pr.yml`: creates or reuses a PR from `codex/**` branches into `dev`.
+- `.github/pull_request_template.md`: PR checklist for gameplay, economy, migration, and API review.
