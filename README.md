@@ -56,7 +56,10 @@ Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
 - `PR Review Checks`: runs dependency review and posts a review checklist comment.
 - `Auto PR`: opens or reuses a PR from `codex/**` branches into `dev`.
 
-`Auto PR` uses `GITHUB_TOKEN` by default. Add a repository secret named `PR_AUTOMATION_TOKEN` if you want PR-created events to use a dedicated token.
+`Auto PR` uses `GITHUB_TOKEN` by default. For that token to create PRs, enable
+`Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests`.
+If that setting is unavailable or you want a dedicated automation identity, add a repository secret named
+`PR_AUTOMATION_TOKEN` with pull-request write permission.
 
 ## Project structure
 

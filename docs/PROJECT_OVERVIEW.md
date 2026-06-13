@@ -80,3 +80,5 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - `.github/workflows/pr-review.yml`: dependency review and automated PR checklist comment.
 - `.github/workflows/auto-pr.yml`: creates or reuses a PR from `codex/**` branches into `dev`.
 - `.github/pull_request_template.md`: PR checklist for gameplay, economy, migration, and API review.
+- Auto PR requires either the repository workflow permission to create pull requests or a
+  `PR_AUTOMATION_TOKEN` repository secret with pull-request write permission.
