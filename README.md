@@ -61,6 +61,9 @@ Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
 If that setting is unavailable or you want a dedicated automation identity, add a repository secret named
 `PR_AUTOMATION_TOKEN` with pull-request write permission.
 
+Enable `Settings > Security > Code security and analysis > Dependency graph` to make dependency review fully active.
+Without it, dependency review is advisory and the PR checklist still posts.
+
 ## Project structure
 
 - `src/main/java`: application source

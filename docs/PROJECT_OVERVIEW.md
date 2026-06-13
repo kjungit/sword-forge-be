@@ -82,3 +82,4 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - `.github/pull_request_template.md`: PR checklist for gameplay, economy, migration, and API review.
 - Auto PR requires either the repository workflow permission to create pull requests or a
   `PR_AUTOMATION_TOKEN` repository secret with pull-request write permission.
+- Dependency review is advisory until GitHub Dependency graph is enabled for the repository.
