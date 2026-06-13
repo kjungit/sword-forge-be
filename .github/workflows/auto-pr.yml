@@ -24,8 +24,16 @@ jobs:
           BASE_BRANCH: dev
           HEAD_BRANCH: ${{ github.ref_name }}
         run: |
-          if gh pr view "$HEAD_BRANCH" --base "$BASE_BRANCH" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh pr view "$HEAD_BRANCH" --base "$BASE_BRANCH" --repo "$GITHUB_REPOSITORY" --json url --jq .url
+          existing_url="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --head "$HEAD_BRANCH" \
+            --base "$BASE_BRANCH" \
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')"
+
+          if [ -n "$existing_url" ]; then
+            echo "$existing_url"
             exit 0
           fi
 
@@ -49,9 +57,28 @@ jobs:
           - API compatibility
           BODY
 
-          gh pr create \
+          if ! create_output="$(gh pr create \
             --repo "$GITHUB_REPOSITORY" \
             --base "$BASE_BRANCH" \
             --head "$HEAD_BRANCH" \
             --title "Auto PR: $HEAD_BRANCH" \
-            --body-file /tmp/pr_body.md
+            --body-file /tmp/pr_body.md 2>&1)"; then
+            echo "$create_output"
+
+            existing_url="$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --head "$HEAD_BRANCH" \
+              --base "$BASE_BRANCH" \
+              --state open \
+              --json url \
+              --jq '.[0].url // ""')"
+
+            if [ -n "$existing_url" ]; then
+              echo "$existing_url"
+              exit 0
+            fi
+
+            exit 1
+          fi
+
+          echo "$create_output"
