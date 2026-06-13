@@ -78,7 +78,8 @@ jobs:
               exit 0
             fi
 
-            exit 1
+            echo "::warning::Unable to create a pull request automatically. Check workflow permissions or create the PR manually."
+            exit 0
           fi
 
           echo "$create_output"

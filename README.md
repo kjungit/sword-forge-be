@@ -97,6 +97,7 @@ For Docker/Postgres mode and deployment preflight checks, see `docs/LOCAL_TESTIN
 `Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests`.
 If that setting is unavailable or you want a dedicated automation identity, add a repository secret named
 `PR_AUTOMATION_TOKEN` with pull-request write permission.
+If the token cannot create pull requests, the workflow leaves a warning and the PR can be created manually.
 
 Enable `Settings > Security > Code security and analysis > Dependency graph` to make dependency review fully active.
 Without it, dependency review is advisory and the PR checklist still posts.

@@ -92,6 +92,7 @@ python3 scripts/smoke_api.py --with-enhance-attempt
 ```
 
 That option mutates the local save and consumes gold, so use it when you are comfortable changing the local DB state.
+The smoke test is safe to repeat; it accepts the current local save state after the first run.
 
 ## Manual CSRF Check
 

@@ -298,7 +298,7 @@ Minimum smoke flow against a local backend:
 
 1. `GET /health` returns `up`.
 2. `GET /security/csrf` returns `headerName`, `token`, and `cookieName`.
-3. `GET /saves/local_user` returns starter save.
+3. `GET /saves/local_user` returns a save with `currentWeaponId`, `materials`, and `weaponInventory`.
 4. `POST /enhance/preview` for `normal_01` returns `requiredItems=[]`.
 5. `POST /enhance/attempt` returns retry context.
 6. `GET /shop/sell-preview/normal_02?userId=local_user&amount=1` returns `sellGold` and `willFallbackToStarter`.

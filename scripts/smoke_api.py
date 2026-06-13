@@ -127,9 +127,11 @@ def main() -> None:
     pass_step(f"weapon catalog loaded ({len(weapons)} weapons)")
 
     save = client.request("GET", f"/saves/{urllib.parse.quote(args.user)}")
-    require(save.get("currentWeaponId") == "normal_01", f"default current weapon should be normal_01, got {save}")
-    require(int(save.get("materials", {}).get("gold", 0)) >= 100000, f"default gold should be at least 100000, got {save}")
-    pass_step("save load/create returns starter sword and starting gold")
+    current_weapon = str(save.get("currentWeaponId", ""))
+    require(current_weapon, f"save should include currentWeaponId, got {save}")
+    require(isinstance(save.get("weaponInventory"), dict) and save["weaponInventory"], f"save should include weapon inventory, got {save}")
+    require(int(save.get("materials", {}).get("gold", 0)) >= 0, f"save should include non-negative gold, got {save}")
+    pass_step(f"save load/create returns current weapon {current_weapon}")
 
     preview = client.request(
         "POST",
@@ -162,7 +164,7 @@ def main() -> None:
         attempt = client.request(
             "POST",
             "/enhance/attempt",
-            payload={"userId": args.user, "weaponId": "normal_01", "useProtection": False},
+            payload={"userId": args.user, "weaponId": current_weapon, "useProtection": False},
             csrf=True,
         )
         require("outcome" in attempt and "nextPreview" in attempt and "canRetry" in attempt, f"invalid attempt response: {attempt}")
