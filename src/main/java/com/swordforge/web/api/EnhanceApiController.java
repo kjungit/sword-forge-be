@@ -26,7 +26,12 @@ public class EnhanceApiController {
     @PostMapping("/preview")
     public ApiResponse<EnhanceService.EnhancePreview> preview(@Valid @RequestBody EnhanceAttemptRequest request) {
         requestUserGuard.requireSelfOrAdmin(request.userId());
-        return ApiResponse.ok(enhanceService.preview(request.userId(), request.weaponId(), request.useProtection()));
+        return ApiResponse.ok(enhanceService.preview(
+                request.userId(),
+                request.weaponId(),
+                request.useProtection(),
+                request.rateBoostItemId()
+        ));
     }
 
     @PostMapping("/attempt")

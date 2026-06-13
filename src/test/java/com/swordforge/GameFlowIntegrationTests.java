@@ -329,6 +329,67 @@ class GameFlowIntegrationTests {
     }
 
     @Test
+    void salePreviewUsesInvestedGoldFloor() {
+        WeaponPurchaseService.SalePreview preview = weaponPurchaseService.salePreview("normal_10");
+
+        Assertions.assertEquals("normal_10", preview.weaponId());
+        Assertions.assertEquals(25, preview.investedGold());
+        Assertions.assertEquals(50, preview.sellGold());
+        Assertions.assertEquals(2.0, preview.profitMultiplier(), 0.0001);
+    }
+
+    @Test
+    void sellingLastNonStarterWeaponFallsBackToStarter() {
+        String userId = "fallback-sale-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "rare_01",
+                Map.of(),
+                Map.of(),
+                Map.of("rare_01", 1),
+                List.of("rare_01"),
+                List.of("rare_01"),
+                List.of("rare_01"),
+                "rare_01",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        WeaponPurchaseService.SaleResult result = weaponPurchaseService.sell(userId, "rare_01", 1);
+
+        Assertions.assertTrue(result.willFallbackToStarter());
+        Assertions.assertEquals("normal_01", result.equippedWeaponId());
+        Assertions.assertEquals(50, result.totalGold());
+        Assertions.assertEquals(50, result.remainingGold());
+        Assertions.assertEquals(1, result.weaponInventory().get("normal_01"));
+        Assertions.assertFalse(result.weaponInventory().containsKey("rare_01"));
+    }
+
+    @Test
+    void sellingOnlyStarterWeaponIsRejected() {
+        String userId = "only-starter-sale-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_01",
+                Map.of(),
+                Map.of(),
+                Map.of("normal_01", 1),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                "normal_01",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        IllegalArgumentException ex = Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> weaponPurchaseService.sell(userId, "normal_01", 1)
+        );
+        Assertions.assertTrue(ex.getMessage().contains("starter"));
+    }
+
+    @Test
     void itemPurchaseConsumesGoldAndAddsItem() throws Exception {
         String userId = "item-purchase-user";
         playerSaveService.upsert(new PlayerSaveData(
@@ -366,11 +427,137 @@ class GameFlowIntegrationTests {
     }
 
     @Test
+    void idleClaimGrantsGoldFromCurrentWeaponDamage() throws Exception {
+        String userId = "idle-claim-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_02",
+                Map.of("gold", 0),
+                Map.of(),
+                Map.of("normal_02", 1),
+                List.of("normal_02"),
+                List.of("normal_02"),
+                List.of("normal_02"),
+                "normal_02",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+        String body = """
+                {
+                  "userId": "idle-claim-user"
+                }
+                """;
+
+        mockMvc.perform(
+                        post("/api/v1/idle/claim")
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(body)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.weaponId").value("normal_02"))
+                .andExpect(jsonPath("$.data.damage").isNumber())
+                .andExpect(jsonPath("$.data.goldGained").isNumber())
+                .andExpect(jsonPath("$.data.totalGold").isNumber())
+                .andExpect(jsonPath("$.data.lastClaimedAt").exists());
+    }
+
+    @Test
     void enhancePreviewReturnsRates() {
         EnhanceService.EnhancePreview preview = enhanceService.preview("normal_01", false);
         Assertions.assertEquals("normal_02", preview.nextWeaponId());
         Assertions.assertEquals(0.97, preview.baseSuccessRate(), 0.0001);
+        Assertions.assertEquals(0.97, preview.successRate(), 0.0001);
         Assertions.assertEquals(1, preview.goldCost());
+        Assertions.assertTrue(preview.requiredItems().isEmpty());
+        Assertions.assertTrue(preview.canBreak());
+        Assertions.assertTrue(preview.canAfford());
+        Assertions.assertEquals("fail_destroyed", preview.failureResult());
+    }
+
+    @Test
+    void normalEnhanceIgnoresProtectionAndBoostItems() {
+        String userId = "normal-gold-only-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_01",
+                Map.of("gold", 20),
+                Map.of(),
+                Map.of("normal_01", 1),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                "normal_01",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        EnhanceService.EnhanceResult result = enhanceService.attempt(
+                userId,
+                "normal_01",
+                true,
+                "enhance_rate_boost_10",
+                0.99
+        );
+
+        Assertions.assertEquals("fail_destroyed", result.outcome().name().toLowerCase());
+        Assertions.assertFalse(result.protectionUsed());
+        Assertions.assertNull(result.rateBoostItemId());
+        Assertions.assertEquals(19, result.remainingGold());
+        Assertions.assertTrue(result.remainingMaterials().containsKey("gold"));
+    }
+
+    @Test
+    void rarePreviewReportsMissingProtectionItem() {
+        String userId = "rare-missing-protection-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "rare_01",
+                Map.of("gold", 100),
+                Map.of(),
+                Map.of("normal_01", 1, "rare_01", 1),
+                List.of("normal_01", "rare_01"),
+                List.of("normal_01", "rare_01"),
+                List.of("normal_01", "rare_01"),
+                "rare_01",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        EnhanceService.EnhancePreview preview = enhanceService.preview(userId, "rare_01", true);
+
+        Assertions.assertFalse(preview.useProtectionAvailable());
+        Assertions.assertFalse(preview.canAfford());
+        Assertions.assertEquals("middle_protection_ticket", preview.requiredItems().get(0).resourceId());
+        Assertions.assertEquals("middle_protection_ticket", preview.missingResources().get(0).resourceId());
+    }
+
+    @Test
+    void enhanceAttemptReturnsRetryContext() {
+        String userId = "retry-context-user";
+        playerSaveService.upsert(new PlayerSaveData(
+                userId,
+                "normal_01",
+                Map.of("gold", 20),
+                Map.of(),
+                Map.of("normal_01", 1),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                List.of("normal_01"),
+                "normal_01",
+                Map.of(),
+                java.time.Instant.now()
+        ));
+
+        EnhanceService.EnhanceResult result = enhanceService.attempt(userId, "normal_01", false, 0.0);
+
+        Assertions.assertEquals("normal_02", result.currentWeaponId());
+        Assertions.assertEquals("normal_02", result.equippedWeaponId());
+        Assertions.assertEquals(19, result.remainingMaterials().get("gold"));
+        Assertions.assertTrue(result.canRetry());
+        Assertions.assertNotNull(result.nextPreview());
+        Assertions.assertEquals("normal_03", result.nextPreview().nextWeaponId());
+        Assertions.assertTrue(result.missingResources().isEmpty());
     }
 
     @Test
@@ -408,7 +595,20 @@ class GameFlowIntegrationTests {
         mockMvc.perform(get("/api/v1/probabilities/enhance/{weaponId}", "normal_10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.enhancementAvailable").value(false))
-                .andExpect(jsonPath("$.data.requiresEvolution").value(true));
+                .andExpect(jsonPath("$.data.requiresEvolution").value(true))
+                .andExpect(jsonPath("$.data.goldCost").value(0));
+    }
+
+    @Test
+    void probabilityEndpointIgnoresNormalGradeItems() throws Exception {
+        mockMvc.perform(get("/api/v1/probabilities/enhance/{weaponId}", "normal_01")
+                        .param("useProtection", "true")
+                        .param("rateBoostItemId", "enhance_rate_boost_10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.protectionSelected").value(false))
+                .andExpect(jsonPath("$.data.protectionBonus").value(0.0))
+                .andExpect(jsonPath("$.data.rateBoostBonus").value(0.0))
+                .andExpect(jsonPath("$.data.adjustedSuccessRate").value(0.97));
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,8 +34,15 @@ public class ShopApiController {
     }
 
     @GetMapping("/sell-preview/{weaponId}")
-    public ApiResponse<WeaponPurchaseService.SalePreview> salePreview(@PathVariable String weaponId) {
-        return ApiResponse.ok(weaponPurchaseService.salePreview(weaponId));
+    public ApiResponse<WeaponPurchaseService.SalePreview> salePreview(
+            @PathVariable String weaponId,
+            @RequestParam(required = false) String userId,
+            @RequestParam(defaultValue = "1") int amount
+    ) {
+        if (userId != null && !userId.isBlank()) {
+            requestUserGuard.requireSelfOrAdmin(userId);
+        }
+        return ApiResponse.ok(weaponPurchaseService.salePreview(userId, weaponId, amount));
     }
 
     @PostMapping("/purchase")

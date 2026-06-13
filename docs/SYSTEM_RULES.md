@@ -7,15 +7,19 @@
 - Grade upgrades are handled only by evolution.
 - Enhancement failure destroys the current sword.
 - Enhancement attempts consume a configured gold fee.
+- Normal-grade enhancement is gold-only and does not require or consume protection or boost items.
 - Failure grants material rewards.
 - Destroyed weapons do not grant gold.
 - First reach unlocks repurchase for that sword.
 - Once a non-normal grade is discovered, a destroy failure cannot drop the player below that grade's first sword.
-- Stored swords can be sold for configured gold prices.
+- Stored swords can be sold for gold.
+- Sale gold is at least two times the cumulative enhancement gold invested to reach that sword.
 - Stored swords can be locked to prevent accidental sale.
 - Locked swords cannot be sold until unlocked.
-- Selling every owned sword is rejected.
+- Selling the last non-starter sword restores `normal_01`.
+- Selling the only `normal_01` is rejected.
 - Purchased swords consume materials.
+- Idle claims generate gold from current weapon damage.
 - Special items can be purchased with gold.
 - Evolution consumes weapons and materials.
 - Evolution resets the pity stack for the source grade.

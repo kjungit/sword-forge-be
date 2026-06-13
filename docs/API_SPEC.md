@@ -120,6 +120,19 @@ Body:
 }
 ```
 
+Response includes UI decision fields:
+- `nextWeaponId`
+- `successRate`, `baseSuccessRate`, `adjustedSuccessRate`, and `failRate`
+- `goldCost`
+- `requiredItems`
+- `canBreak`
+- `useProtectionAvailable`
+- `canAfford`
+- `missingResources`
+- `failureResult`
+
+Normal-grade enhancement is gold-only. For normal swords, `requiredItems` is always empty and item shortage does not block `/enhance/attempt`.
+
 ### `POST /enhance/attempt`
 
 Runs an enhancement attempt, writes the save data, and logs the attempt.
@@ -131,6 +144,11 @@ Response includes:
 - roll value
 - success threshold
 - `goldCost` and `remainingGold`
+- `currentWeaponId` and `equippedWeaponId`
+- `remainingMaterials`
+- `nextPreview`
+- `canRetry`
+- `missingResources`
 - failure rewards
 - rate boost item id, when one was consumed
 - `pityKey`, `pityStackBefore`, `pityStackAfter`, and `pityBonus`
@@ -147,7 +165,20 @@ Returns the purchase cost for a weapon.
 
 ### `GET /shop/sell-preview/{weaponId}`
 
-Returns the gold price paid when selling one copy of the weapon.
+Returns sale economics for the weapon.
+
+Optional query params:
+- `userId`: when present, returns user-specific fallback information.
+- `amount`: optional sale amount, default `1`.
+
+Response includes:
+- `weaponId`
+- `investedGold`
+- `sellGold`
+- `profitMultiplier`
+- `willFallbackToStarter`
+- `unitGoldPrice`
+- `totalGold`
 
 ### `POST /shop/purchase`
 
@@ -176,9 +207,32 @@ Body:
 }
 ```
 
-The server rejects selling every owned weapon. If the equipped weapon is sold and no copy remains, the server equips the best remaining owned weapon.
+Sale gold is at least `investedGold * 2`. If the last non-starter weapon is sold, the server restores and equips `normal_01`. Selling the only `normal_01` is rejected to prevent a starter-sale loop.
+
+If the equipped weapon is sold and no copy remains, the server equips the best remaining owned weapon.
 
 The server rejects sale of weapon ids listed in `lockedWeaponIds`.
+
+## Idle Income
+
+### `POST /idle/claim`
+
+Claims server-authoritative idle/tick gold based on the currently equipped weapon's attack power.
+
+Body:
+
+```json
+{
+  "userId": "local_user"
+}
+```
+
+Response includes:
+- `damage`
+- `isCritical`
+- `goldGained`
+- `totalGold`
+- `lastClaimedAt`
 
 ## Evolution
 
@@ -258,6 +312,8 @@ Response includes:
 - `goldCost`
 - `enhancementAvailable`
 - `requiresEvolution`
+
+Normal-grade probability disclosure ignores protection and rate-boost item params, matching the gold-only normal enhancement rule.
 - `pityStack` and `pityBonus`
 - `protectionBonus`
 - `rateBoostBonus`

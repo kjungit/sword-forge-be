@@ -22,6 +22,7 @@ WEAPON_SALE_PRICES_PATH = ROOT / "src/main/resources/data/weapon_sale_prices.jso
 ENHANCE_COSTS_PATH = ROOT / "src/main/resources/data/enhance_costs.json"
 OUTPUT_CSV = ROOT / "outputs/balance_result.csv"
 OUTPUT_MD = ROOT / "outputs/balance_summary.md"
+MIN_PROFIT_MULTIPLIER = 2.0
 
 
 @dataclass(frozen=True)
@@ -78,6 +79,37 @@ def load_evolution_requirements() -> Dict[str, dict]:
 def load_weapon_gold_values(path: Path, key: str) -> Dict[str, int]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     return {item["weaponId"]: item[key] for item in raw}
+
+
+def calculate_invested_gold(
+    weapons: List[Weapon],
+    weapons_by_id: Dict[str, Weapon],
+    enhance_costs: Dict[str, int],
+) -> Dict[str, int]:
+    invested_by_weapon_id: Dict[str, int] = {}
+    cumulative_gold = 0
+    for weapon in sorted(weapons, key=lambda item: (grade_order(item.grade), item.stage)):
+        invested_by_weapon_id[weapon.id] = cumulative_gold
+        next_weapon = weapons_by_id.get(weapon.next_weapon_id or "")
+        if next_weapon is not None and next_weapon.grade == weapon.grade:
+            cumulative_gold += enhance_costs.get(weapon.id, 0)
+    return invested_by_weapon_id
+
+
+def calculate_sale_prices(
+    weapons: List[Weapon],
+    weapons_by_id: Dict[str, Weapon],
+    configured_sale_prices: Dict[str, int],
+    enhance_costs: Dict[str, int],
+) -> Dict[str, int]:
+    invested_by_weapon_id = calculate_invested_gold(weapons, weapons_by_id, enhance_costs)
+    return {
+        weapon.id: max(
+            configured_sale_prices.get(weapon.id, 0),
+            int(invested_by_weapon_id[weapon.id] * MIN_PROFIT_MULTIPLIER),
+        )
+        for weapon in weapons
+    }
 
 
 def reward_rolls(group_id: str, reward_table: Dict[str, List[Tuple[str, int, int]]]) -> Dict[str, int]:
@@ -563,11 +595,13 @@ def main() -> None:
     evolution_requirements = load_evolution_requirements()
     purchase_costs = json.loads(PURCHASE_COSTS_PATH.read_text(encoding="utf-8"))
     purchase_costs_by_id = {entry["weaponId"]: entry["cost"] for entry in purchase_costs}
-    sale_prices = load_weapon_gold_values(WEAPON_SALE_PRICES_PATH, "goldPrice")
+    configured_sale_prices = load_weapon_gold_values(WEAPON_SALE_PRICES_PATH, "goldPrice")
     enhance_costs = load_weapon_gold_values(ENHANCE_COSTS_PATH, "goldCost")
     weapons_by_id = {weapon.id: weapon for weapon in weapons}
+    sale_prices = calculate_sale_prices(weapons, weapons_by_id, configured_sale_prices, enhance_costs)
 
     targets = [
+        ("normal_01", "epic_02"),
         ("normal_01", "rare_01"),
         ("rare_01", "epic_01"),
         ("epic_01", "legendary_01"),

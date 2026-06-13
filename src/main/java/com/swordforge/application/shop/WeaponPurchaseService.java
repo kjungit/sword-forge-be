@@ -91,7 +91,34 @@ public class WeaponPurchaseService {
 
     public SalePreview salePreview(String weaponId) {
         weaponCatalogService.findById(weaponId);
-        return new SalePreview(weaponId, weaponSalePriceService.findPrice(weaponId));
+        return salePreview(null, weaponId, 1);
+    }
+
+    public SalePreview salePreview(String userId, String weaponId, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("sale amount must be positive");
+        }
+        weaponCatalogService.findById(weaponId);
+        int investedGold = weaponSalePriceService.investedGoldFor(weaponId);
+        int unitGoldPrice = weaponSalePriceService.findPrice(weaponId);
+        boolean willFallbackToStarter = false;
+        if (userId != null && !userId.isBlank()) {
+            PlayerSaveData save = playerSaveService.getOrCreate(userId);
+            int ownedCount = save.weaponInventory().getOrDefault(weaponId, 0);
+            if (ownedCount >= amount) {
+                willFallbackToStarter = totalOwnedWeaponCount(save.weaponInventory()) <= amount
+                        && !"normal_01".equals(weaponId);
+            }
+        }
+        return new SalePreview(
+                weaponId,
+                investedGold,
+                unitGoldPrice,
+                weaponSalePriceService.profitMultiplierFor(weaponId),
+                willFallbackToStarter,
+                unitGoldPrice,
+                unitGoldPrice * amount
+        );
     }
 
     @Transactional
@@ -100,8 +127,10 @@ public class WeaponPurchaseService {
             throw new IllegalArgumentException("sale amount must be positive");
         }
         weaponCatalogService.findById(weaponId);
+        int investedGold = weaponSalePriceService.investedGoldFor(weaponId);
         int unitGoldPrice = weaponSalePriceService.findPrice(weaponId);
         int totalGold = unitGoldPrice * amount;
+        final boolean[] fallbackToStarter = {false};
         PlayerSaveData updated = playerSaveService.mutate(userId, save -> {
             int ownedCount = save.weaponInventory().getOrDefault(weaponId, 0);
             if (ownedCount < amount) {
@@ -110,11 +139,15 @@ public class WeaponPurchaseService {
             if (save.lockedWeaponIds().contains(weaponId)) {
                 throw new IllegalArgumentException("weapon is locked: " + weaponId);
             }
-            if (totalOwnedWeaponCount(save.weaponInventory()) <= amount) {
-                throw new IllegalArgumentException("cannot sell all owned weapons");
+            if (totalOwnedWeaponCount(save.weaponInventory()) <= amount && "normal_01".equals(weaponId)) {
+                throw new IllegalArgumentException("cannot sell the only starter weapon");
             }
 
             Map<String, Integer> updatedInventory = playerSaveService.removeWeaponCount(save.weaponInventory(), weaponId, amount);
+            if (totalOwnedWeaponCount(updatedInventory) <= 0) {
+                updatedInventory = playerSaveService.ensureStarterWeapon(updatedInventory);
+                fallbackToStarter[0] = true;
+            }
             String nextCurrentWeaponId = save.currentWeaponId();
             if (updatedInventory.getOrDefault(nextCurrentWeaponId, 0) <= 0) {
                 nextCurrentWeaponId = chooseBestOwnedWeaponId(updatedInventory);
@@ -143,13 +176,22 @@ public class WeaponPurchaseService {
                 weaponId,
                 Map.of(PlayerSaveService.GOLD_MATERIAL_ID, totalGold),
                 updated.materials(),
-                Map.of("weaponId", weaponId, "amount", amount)
+                Map.of(
+                        "weaponId", weaponId,
+                        "amount", amount,
+                        "investedGold", investedGold,
+                        "profitMultiplier", weaponSalePriceService.profitMultiplierFor(weaponId),
+                        "willFallbackToStarter", fallbackToStarter[0]
+                )
         );
 
         return new SaleResult(
                 userId,
                 weaponId,
                 amount,
+                investedGold,
+                weaponSalePriceService.profitMultiplierFor(weaponId),
+                fallbackToStarter[0],
                 unitGoldPrice,
                 totalGold,
                 playerSaveService.goldOf(updated.materials()),
@@ -229,7 +271,12 @@ public class WeaponPurchaseService {
 
     public record SalePreview(
             String weaponId,
-            int goldPrice
+            int investedGold,
+            int sellGold,
+            double profitMultiplier,
+            boolean willFallbackToStarter,
+            int unitGoldPrice,
+            int totalGold
     ) {
     }
 
@@ -237,6 +284,9 @@ public class WeaponPurchaseService {
             String userId,
             String weaponId,
             int amount,
+            int investedGold,
+            double profitMultiplier,
+            boolean willFallbackToStarter,
             int unitGoldPrice,
             int totalGold,
             int remainingGold,

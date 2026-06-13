@@ -26,6 +26,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Enhancement preview and attempt endpoints
 - Shop preview and purchase endpoints
 - Weapon sale preview and sale endpoints
+- Idle income claim endpoint
 - Evolution preview and attempt endpoints
 - Special item catalog, grant, consume, and purchase endpoints
 - Enhancement logs and reward logs endpoints with pagination and filters
@@ -33,6 +34,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Enhancement probability disclosure endpoint
 - Grade-bound enhancement, evolution-only grade upgrades, grade-floor protection, and pity stacks
 - Gold economy for enhancement fees, weapon sale, and special-item purchases
+- Weapon sale prices based on cumulative enhancement gold investment
 - Optimistic save locking for concurrent mutation defense
 - Audit details on enhancement attempt logs
 - Basic Auth runtime guard, enabled outside tests

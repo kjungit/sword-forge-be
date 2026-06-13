@@ -19,6 +19,7 @@
 - database migration scaffold
 - local database containers
 - weapon, equip, save, enhance, shop, evolution, item, and log APIs
+- idle income claim API
 - Basic Auth guard for non-test runtime
 - CSRF token endpoint for runtime mutation requests
 - Swagger UI and OpenAPI JSON
@@ -31,6 +32,7 @@
 - grade-floor protection, pity stacks, and evolution-only grade upgrades
 - stored weapon equip and sale lock controls
 - gold economy for enhancement fees, weapon sale, and item purchases
+- weapon sale rewards based on cumulative enhancement gold investment
 - optimistic locking and enhancement audit details
 - authenticated player requests are bound to their own `userId`
 - direct save upsert and item grant endpoints are admin-only at runtime

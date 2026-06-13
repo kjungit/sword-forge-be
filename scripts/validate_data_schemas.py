@@ -39,6 +39,7 @@ KNOWN_MATERIAL_IDS = {
 }
 
 GRADE_ORDER = {"normal": 0, "rare": 1, "epic": 2, "legendary": 3}
+MIN_SELL_PROFIT_MULTIPLIER = 2
 
 
 def load_json(path: Path) -> Any:
@@ -137,6 +138,22 @@ def is_datetime(value: str) -> bool:
         return False
 
 
+def calculate_invested_gold(
+    weapons: list[dict[str, Any]],
+    weapons_by_id: dict[str, dict[str, Any]],
+    enhance_cost_by_weapon_id: dict[str, int],
+) -> dict[str, int]:
+    invested_by_weapon_id: dict[str, int] = {}
+    cumulative_gold = 0
+    for weapon in sorted(weapons, key=lambda item: (GRADE_ORDER[item["grade"]], item["stage"])):
+        invested_by_weapon_id[weapon["id"]] = cumulative_gold
+        next_weapon_id = weapon.get("nextWeaponId")
+        next_weapon = weapons_by_id.get(next_weapon_id) if next_weapon_id is not None else None
+        if next_weapon is not None and next_weapon["grade"] == weapon["grade"]:
+            cumulative_gold += enhance_cost_by_weapon_id.get(weapon["id"], 0)
+    return invested_by_weapon_id
+
+
 def validate_schema_file(schema_filename: str, data_filename: str) -> list[str]:
     schema = load_json(SCHEMA_DIR / schema_filename)
     data = load_json(DATA_DIR / data_filename)
@@ -225,6 +242,7 @@ def cross_validate() -> list[str]:
 
     enhance_costs = load_json(DATA_DIR / "enhance_costs.json")
     enhance_cost_weapon_ids = set()
+    enhance_cost_by_weapon_id = {}
     for row in enhance_costs:
         weapon_id = row["weaponId"]
         if weapon_id not in weapon_id_set:
@@ -232,6 +250,7 @@ def cross_validate() -> list[str]:
         if weapon_id in enhance_cost_weapon_ids:
             errors.append(f"enhance_costs.json: duplicate weaponId {weapon_id}")
         enhance_cost_weapon_ids.add(weapon_id)
+        enhance_cost_by_weapon_id[weapon_id] = row["goldCost"]
     if enhance_cost_weapon_ids != weapon_id_set:
         missing = sorted(weapon_id_set - enhance_cost_weapon_ids)
         extra = sorted(enhance_cost_weapon_ids - weapon_id_set)
@@ -239,6 +258,18 @@ def cross_validate() -> list[str]:
             errors.append(f"enhance_costs.json: missing weapon ids {missing}")
         if extra:
             errors.append(f"enhance_costs.json: extra weapon ids {extra}")
+
+    invested_gold_by_weapon_id = calculate_invested_gold(weapons, weapons_by_id, enhance_cost_by_weapon_id)
+    for row in sale_prices:
+        weapon_id = row["weaponId"]
+        invested_gold = invested_gold_by_weapon_id.get(weapon_id, 0)
+        minimum_sale_gold = invested_gold * MIN_SELL_PROFIT_MULTIPLIER
+        if row["goldPrice"] < minimum_sale_gold:
+            errors.append(
+                "weapon_sale_prices.json: "
+                f"{weapon_id} goldPrice {row['goldPrice']} must be >= investedGold {invested_gold} * "
+                f"{MIN_SELL_PROFIT_MULTIPLIER}"
+            )
 
     failure_rewards = load_json(DATA_DIR / "failure_rewards.json")
     reward_group_ids = [row["groupId"] for row in failure_rewards]

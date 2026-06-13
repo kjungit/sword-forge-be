@@ -9,6 +9,7 @@ import com.swordforge.application.weapon.WeaponCatalogService;
 import com.swordforge.domain.enhance.EnhanceTableDefinition;
 import com.swordforge.domain.item.SpecialItemDefinition;
 import com.swordforge.domain.save.PlayerSaveData;
+import com.swordforge.domain.weapon.Grade;
 import com.swordforge.domain.weapon.WeaponDefinition;
 import org.springframework.stereotype.Service;
 
@@ -64,9 +65,15 @@ public class ProbabilityDisclosureService {
             pityStack = save.pityStacks().getOrDefault(pityKey, 0);
         }
         double pityBonus = Math.min(MAX_PITY_RATE_BONUS, pityStack * PITY_STACK_RATE_BONUS);
-        double protectionBonus = useProtection ? PROTECTION_RATE_BONUS : 0.0;
-        double rateBoostBonus = rateBoostBonus(rateBoostItemId);
-        double adjustedSuccessRate = Math.min(1.0, table.successRate() + pityBonus + protectionBonus + rateBoostBonus);
+        boolean itemBoostAllowed = enhancementAvailable && weapon.grade() != Grade.NORMAL;
+        boolean effectiveProtection = itemBoostAllowed && useProtection;
+        String effectiveRateBoostItemId = itemBoostAllowed ? rateBoostItemId : null;
+        double protectionBonus = effectiveProtection ? PROTECTION_RATE_BONUS : 0.0;
+        double rateBoostBonus = rateBoostBonus(effectiveRateBoostItemId);
+        double adjustedSuccessRate = enhancementAvailable
+                ? Math.min(1.0, table.successRate() + pityBonus + protectionBonus + rateBoostBonus)
+                : 0.0;
+        int goldCost = enhancementAvailable ? enhanceCostService.findCost(weaponId) : 0;
 
         return new EnhanceProbability(
                 userId,
@@ -77,10 +84,10 @@ public class ProbabilityDisclosureService {
                 table.successRate(),
                 table.failRate(),
                 adjustedSuccessRate,
-                enhanceCostService.findCost(weaponId),
-                useProtection,
+                goldCost,
+                effectiveProtection,
                 protectionBonus,
-                rateBoostItemId,
+                effectiveRateBoostItemId,
                 rateBoostBonus,
                 pityKey,
                 pityStack,

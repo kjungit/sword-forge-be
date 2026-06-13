@@ -45,7 +45,9 @@ class SwordForgeApplicationTests {
 
     @Test
     void loadsGoldEconomyPrices() {
-        Assertions.assertEquals(60, weaponSalePriceService.findPrice("rare_03"));
+        Assertions.assertEquals(36, weaponSalePriceService.investedGoldFor("rare_03"));
+        Assertions.assertEquals(72, weaponSalePriceService.findPrice("rare_03"));
+        Assertions.assertTrue(weaponSalePriceService.findPrice("rare_03") >= weaponSalePriceService.investedGoldFor("rare_03") * 2);
         Assertions.assertEquals(5, enhanceCostService.findCost("normal_10"));
         Assertions.assertEquals(40, itemPurchasePriceService.findPrice("enhance_rate_boost_5"));
     }
