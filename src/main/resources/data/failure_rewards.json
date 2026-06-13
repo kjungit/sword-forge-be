@@ -8,20 +8,24 @@
   {
     "groupId": "normal_mid",
     "rewards": [
-      { "materialId": "cracked_iron_piece", "minAmount": 3, "maxAmount": 6 }
+      { "materialId": "cracked_iron_piece", "minAmount": 3, "maxAmount": 6 },
+      { "materialId": "cold_ember_powder", "minAmount": 0, "maxAmount": 1 }
     ]
   },
   {
     "groupId": "normal_late",
     "rewards": [
-      { "materialId": "cracked_iron_piece", "minAmount": 6, "maxAmount": 10 }
+      { "materialId": "cracked_iron_piece", "minAmount": 6, "maxAmount": 10 },
+      { "materialId": "cold_ember_powder", "minAmount": 2, "maxAmount": 3 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 0, "maxAmount": 1 }
     ]
   },
   {
     "groupId": "normal_final",
     "rewards": [
       { "materialId": "cracked_iron_piece", "minAmount": 10, "maxAmount": 15 },
-      { "materialId": "cold_ember_powder", "minAmount": 3, "maxAmount": 5 }
+      { "materialId": "cold_ember_powder", "minAmount": 3, "maxAmount": 5 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 1, "maxAmount": 1 }
     ]
   },
   {
@@ -33,21 +37,24 @@
   {
     "groupId": "rare_mid",
     "rewards": [
-      { "materialId": "blue_black_jade_fragment", "minAmount": 5, "maxAmount": 9 }
+      { "materialId": "blue_black_jade_fragment", "minAmount": 5, "maxAmount": 9 },
+      { "materialId": "grudge_iron_dust", "minAmount": 0, "maxAmount": 1 }
     ]
   },
   {
     "groupId": "rare_late",
     "rewards": [
       { "materialId": "blue_black_jade_fragment", "minAmount": 9, "maxAmount": 14 },
-      { "materialId": "grudge_iron_dust", "minAmount": 2, "maxAmount": 4 }
+      { "materialId": "grudge_iron_dust", "minAmount": 3, "maxAmount": 5 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 0, "maxAmount": 1 }
     ]
   },
   {
     "groupId": "rare_final",
     "rewards": [
       { "materialId": "blue_black_jade_fragment", "minAmount": 15, "maxAmount": 22 },
-      { "materialId": "grudge_iron_dust", "minAmount": 5, "maxAmount": 8 }
+      { "materialId": "grudge_iron_dust", "minAmount": 5, "maxAmount": 8 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 1, "maxAmount": 2 }
     ]
   },
   {
@@ -60,14 +67,18 @@
     "groupId": "epic_mid",
     "rewards": [
       { "materialId": "cracked_soul_stone", "minAmount": 8, "maxAmount": 14 },
-      { "materialId": "abyss_trace", "minAmount": 2, "maxAmount": 5 }
+      { "materialId": "abyss_trace", "minAmount": 4, "maxAmount": 7 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 1, "maxAmount": 1 },
+      { "materialId": "black_jade_heart", "minAmount": 0, "maxAmount": 1 }
     ]
   },
   {
     "groupId": "epic_final",
     "rewards": [
       { "materialId": "cracked_soul_stone", "minAmount": 15, "maxAmount": 25 },
-      { "materialId": "abyss_trace", "minAmount": 6, "maxAmount": 10 }
+      { "materialId": "abyss_trace", "minAmount": 6, "maxAmount": 10 },
+      { "materialId": "evolution_fixed_stone", "minAmount": 2, "maxAmount": 3 },
+      { "materialId": "black_jade_heart", "minAmount": 1, "maxAmount": 1 }
     ]
   },
   {

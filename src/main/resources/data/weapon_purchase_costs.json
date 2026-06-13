@@ -1,29 +1,172 @@
 [
-  { "weaponId": "normal_01", "cost": {} },
-  { "weaponId": "normal_02", "cost": { "cracked_iron_piece": 10 } },
-  { "weaponId": "normal_03", "cost": { "cracked_iron_piece": 15 } },
-  { "weaponId": "normal_04", "cost": { "cracked_iron_piece": 25 } },
-  { "weaponId": "normal_05", "cost": { "cracked_iron_piece": 40, "cold_ember_powder": 5 } },
-  { "weaponId": "normal_06", "cost": { "cracked_iron_piece": 60, "cold_ember_powder": 10 } },
-  { "weaponId": "normal_07", "cost": { "cracked_iron_piece": 85, "cold_ember_powder": 15 } },
-  { "weaponId": "normal_08", "cost": { "cracked_iron_piece": 115, "cold_ember_powder": 25 } },
-  { "weaponId": "normal_09", "cost": { "cracked_iron_piece": 150, "cold_ember_powder": 35 } },
-  { "weaponId": "normal_10", "cost": { "cracked_iron_piece": 200, "cold_ember_powder": 50 } },
-  { "weaponId": "rare_01", "cost": { "blue_black_jade_fragment": 40 } },
-  { "weaponId": "rare_02", "cost": { "blue_black_jade_fragment": 60 } },
-  { "weaponId": "rare_03", "cost": { "blue_black_jade_fragment": 90, "grudge_iron_dust": 10 } },
-  { "weaponId": "rare_04", "cost": { "blue_black_jade_fragment": 130, "grudge_iron_dust": 20 } },
-  { "weaponId": "rare_05", "cost": { "blue_black_jade_fragment": 180, "grudge_iron_dust": 35 } },
-  { "weaponId": "rare_06", "cost": { "blue_black_jade_fragment": 250, "grudge_iron_dust": 55 } },
-  { "weaponId": "rare_07", "cost": { "blue_black_jade_fragment": 340, "grudge_iron_dust": 80 } },
-  { "weaponId": "rare_08", "cost": { "blue_black_jade_fragment": 450, "grudge_iron_dust": 120 } },
-  { "weaponId": "epic_01", "cost": { "cracked_soul_stone": 160, "abyss_trace": 40 } },
-  { "weaponId": "epic_02", "cost": { "cracked_soul_stone": 240, "abyss_trace": 70 } },
-  { "weaponId": "epic_03", "cost": { "cracked_soul_stone": 360, "abyss_trace": 120 } },
-  { "weaponId": "epic_04", "cost": { "cracked_soul_stone": 520, "abyss_trace": 180 } },
-  { "weaponId": "epic_05", "cost": { "cracked_soul_stone": 760, "abyss_trace": 260 } },
-  { "weaponId": "legendary_01", "cost": { "sealed_stardust": 300, "cataclysm_remnant": 60 } },
-  { "weaponId": "legendary_02", "cost": { "sealed_stardust": 500, "cataclysm_remnant": 120 } },
-  { "weaponId": "legendary_03", "cost": { "sealed_stardust": 800, "cataclysm_remnant": 220 } },
-  { "weaponId": "legendary_04", "cost": { "sealed_stardust": 1200, "cataclysm_remnant": 360 } }
+  {
+    "weaponId": "normal_01",
+    "cost": {}
+  },
+  {
+    "weaponId": "normal_02",
+    "cost": {
+      "cracked_iron_piece": 2
+    }
+  },
+  {
+    "weaponId": "normal_03",
+    "cost": {
+      "cracked_iron_piece": 3
+    }
+  },
+  {
+    "weaponId": "normal_04",
+    "cost": {
+      "cracked_iron_piece": 5
+    }
+  },
+  {
+    "weaponId": "normal_05",
+    "cost": {
+      "cracked_iron_piece": 8,
+      "cold_ember_powder": 1
+    }
+  },
+  {
+    "weaponId": "normal_06",
+    "cost": {
+      "cracked_iron_piece": 12,
+      "cold_ember_powder": 2
+    }
+  },
+  {
+    "weaponId": "normal_07",
+    "cost": {
+      "cracked_iron_piece": 16,
+      "cold_ember_powder": 3
+    }
+  },
+  {
+    "weaponId": "normal_08",
+    "cost": {
+      "cracked_iron_piece": 22,
+      "cold_ember_powder": 4
+    }
+  },
+  {
+    "weaponId": "normal_09",
+    "cost": {
+      "cracked_iron_piece": 28,
+      "cold_ember_powder": 6
+    }
+  },
+  {
+    "weaponId": "normal_10",
+    "cost": {
+      "cracked_iron_piece": 35,
+      "cold_ember_powder": 8
+    }
+  },
+  {
+    "weaponId": "rare_01",
+    "cost": {
+      "blue_black_jade_fragment": 2
+    }
+  },
+  {
+    "weaponId": "rare_02",
+    "cost": {
+      "blue_black_jade_fragment": 3
+    }
+  },
+  {
+    "weaponId": "rare_03",
+    "cost": {
+      "blue_black_jade_fragment": 4
+    }
+  },
+  {
+    "weaponId": "rare_04",
+    "cost": {
+      "blue_black_jade_fragment": 6
+    }
+  },
+  {
+    "weaponId": "rare_05",
+    "cost": {
+      "blue_black_jade_fragment": 8
+    }
+  },
+  {
+    "weaponId": "rare_06",
+    "cost": {
+      "blue_black_jade_fragment": 10
+    }
+  },
+  {
+    "weaponId": "rare_07",
+    "cost": {
+      "blue_black_jade_fragment": 12
+    }
+  },
+  {
+    "weaponId": "rare_08",
+    "cost": {
+      "blue_black_jade_fragment": 15
+    }
+  },
+  {
+    "weaponId": "epic_01",
+    "cost": {
+      "cracked_soul_stone": 8
+    }
+  },
+  {
+    "weaponId": "epic_02",
+    "cost": {
+      "cracked_soul_stone": 12
+    }
+  },
+  {
+    "weaponId": "epic_03",
+    "cost": {
+      "cracked_soul_stone": 16
+    }
+  },
+  {
+    "weaponId": "epic_04",
+    "cost": {
+      "cracked_soul_stone": 22
+    }
+  },
+  {
+    "weaponId": "epic_05",
+    "cost": {
+      "cracked_soul_stone": 30
+    }
+  },
+  {
+    "weaponId": "legendary_01",
+    "cost": {
+      "sealed_stardust": 25,
+      "cataclysm_remnant": 5
+    }
+  },
+  {
+    "weaponId": "legendary_02",
+    "cost": {
+      "sealed_stardust": 40,
+      "cataclysm_remnant": 9
+    }
+  },
+  {
+    "weaponId": "legendary_03",
+    "cost": {
+      "sealed_stardust": 65,
+      "cataclysm_remnant": 16
+    }
+  },
+  {
+    "weaponId": "legendary_04",
+    "cost": {
+      "sealed_stardust": 95,
+      "cataclysm_remnant": 26
+    }
+  }
 ]

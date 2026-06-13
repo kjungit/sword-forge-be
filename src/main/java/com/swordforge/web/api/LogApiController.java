@@ -1,0 +1,93 @@
+package com.swordforge.web.api;
+
+import com.swordforge.application.economy.EconomyLogService;
+import com.swordforge.application.reward.RewardLogService;
+import com.swordforge.common.api.ApiResponse;
+import com.swordforge.common.api.PageResponse;
+import com.swordforge.common.security.RequestUserGuard;
+import com.swordforge.web.dto.EconomyTransactionLogResponse;
+import com.swordforge.web.dto.EnhanceAttemptLogResponse;
+import com.swordforge.web.dto.RewardGrantLogResponse;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/logs")
+public class LogApiController {
+
+    private final RewardLogService rewardLogService;
+    private final EconomyLogService economyLogService;
+    private final com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository;
+    private final RequestUserGuard requestUserGuard;
+
+    public LogApiController(
+            RewardLogService rewardLogService,
+            EconomyLogService economyLogService,
+            com.swordforge.domain.enhance.EnhanceAttemptRepository enhanceAttemptRepository,
+            RequestUserGuard requestUserGuard
+    ) {
+        this.rewardLogService = rewardLogService;
+        this.economyLogService = economyLogService;
+        this.enhanceAttemptRepository = enhanceAttemptRepository;
+        this.requestUserGuard = requestUserGuard;
+    }
+
+    @GetMapping("/enhance/{userId}")
+    public ApiResponse<PageResponse<EnhanceAttemptLogResponse>> listEnhanceLogs(
+            @PathVariable String userId,
+            @RequestParam(required = false) String outcome,
+            @RequestParam(required = false) Boolean protectionUsed,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
+        Pageable pageable = pageRequest(page, size);
+        return ApiResponse.ok(PageResponse.from(enhanceAttemptRepository
+                .findByUserIdWithFilters(userId, blankToNull(outcome), protectionUsed, pageable)
+                .map(EnhanceAttemptLogResponse::from)));
+    }
+
+    @GetMapping("/rewards/{userId}")
+    public ApiResponse<PageResponse<RewardGrantLogResponse>> listRewardLogs(
+            @PathVariable String userId,
+            @RequestParam(required = false) String rewardKind,
+            @RequestParam(required = false) String sourceType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
+        Pageable pageable = pageRequest(page, size);
+        return ApiResponse.ok(PageResponse.from(rewardLogService
+                .findByUserId(userId, rewardKind, sourceType, pageable)
+                .map(RewardGrantLogResponse::from)));
+    }
+
+    @GetMapping("/economy/{userId}")
+    public ApiResponse<PageResponse<EconomyTransactionLogResponse>> listEconomyLogs(
+            @PathVariable String userId,
+            @RequestParam(required = false) String transactionType,
+            @RequestParam(required = false) String resourceKind,
+            @RequestParam(required = false) String resourceId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        requestUserGuard.requireSelfOrAdmin(userId);
+        Pageable pageable = pageRequest(page, size);
+        return ApiResponse.ok(PageResponse.from(economyLogService
+                .findByUserId(userId, transactionType, resourceKind, resourceId, pageable)
+                .map(EconomyTransactionLogResponse::from)));
+    }
+
+    private Pageable pageRequest(int page, int size) {
+        return PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
+}

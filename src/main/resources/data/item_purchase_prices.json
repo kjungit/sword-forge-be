@@ -1,0 +1,8 @@
+[
+  { "itemId": "basic_protection_ticket", "goldPrice": 25 },
+  { "itemId": "middle_protection_ticket", "goldPrice": 55 },
+  { "itemId": "advanced_protection_ticket", "goldPrice": 120 },
+  { "itemId": "legendary_protection_ticket", "goldPrice": 260 },
+  { "itemId": "enhance_rate_boost_5", "goldPrice": 40 },
+  { "itemId": "enhance_rate_boost_10", "goldPrice": 90 }
+]

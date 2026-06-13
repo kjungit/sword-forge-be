@@ -1,0 +1,39 @@
+name: Balance Simulation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulate:
+    name: Run balance simulator
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run simulator
+        run: python3 scripts/simulate_balance.py --runs 300 --max-attempts 1000
+
+      - name: Add summary
+        run: cat outputs/balance_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload balance outputs
+        uses: actions/upload-artifact@v7
+        with:
+          name: balance-simulation
+          path: |
+            outputs/balance_result.csv
+            outputs/balance_summary.md

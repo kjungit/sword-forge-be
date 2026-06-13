@@ -10,10 +10,12 @@
     "materials",
     "specialItems",
     "weaponInventory",
+    "lockedWeaponIds",
     "ownedWeaponIds",
     "unlockedWeaponShop",
     "discoveredWeaponIds",
     "highestReachedWeaponId",
+    "pityStacks",
     "updatedAt"
   ],
   "properties": {
@@ -31,6 +33,10 @@
       "type": "object",
       "additionalProperties": { "type": "integer", "minimum": 0 }
     },
+    "lockedWeaponIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
     "ownedWeaponIds": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
@@ -44,6 +50,10 @@
       "items": { "type": "string", "minLength": 1 }
     },
     "highestReachedWeaponId": { "type": "string", "minLength": 1 },
+    "pityStacks": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
     "updatedAt": { "type": "string", "format": "date-time" }
   }
 }
