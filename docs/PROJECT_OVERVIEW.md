@@ -73,6 +73,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 
 - API documentation under `docs/API_SPEC.md`
 - Frontend handoff contract under `docs/FRONTEND_HANDOFF.md`
+- Local server and smoke-test guide under `docs/LOCAL_TESTING.md`
 - Rules under `docs/SYSTEM_RULES.md`
 - QA checklist under `docs/QA_CHECKLIST.md`
 - Economy notes under `docs/ECONOMY_DESIGN.md`
