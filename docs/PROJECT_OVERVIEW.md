@@ -36,6 +36,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Optimistic save locking for concurrent mutation defense
 - Audit details on enhancement attempt logs
 - Basic Auth runtime guard, enabled outside tests
+- CSRF token endpoint for runtime mutation requests
 - Swagger UI at `/swagger-ui.html`
 
 ## Game Data Files

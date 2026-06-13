@@ -20,6 +20,7 @@
 - local database containers
 - weapon, equip, save, enhance, shop, evolution, item, and log APIs
 - Basic Auth guard for non-test runtime
+- CSRF token endpoint for runtime mutation requests
 - Swagger UI and OpenAPI JSON
 - paginated log queries
 - signed economy ledger queries
@@ -47,6 +48,9 @@ Runtime API security is enabled by default. Set credentials with:
 - `SPRING_SECURITY_USER_PASSWORD`
 
 Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
+
+When runtime security is enabled, mutation requests must include a CSRF token. Call
+`GET /api/v1/security/csrf` and send the returned `headerName` with the returned `token`.
 
 ## GitHub Actions
 

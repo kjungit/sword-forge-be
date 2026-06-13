@@ -12,6 +12,7 @@ import java.util.Base64;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
@@ -46,6 +47,7 @@ class AdminSecurityIntegrationTests {
                 """;
 
         mockMvc.perform(put("/api/v1/saves/target-player")
+                        .with(csrf())
                         .header("Authorization", basicAuth("admin", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -63,10 +65,28 @@ class AdminSecurityIntegrationTests {
                 """;
 
         mockMvc.perform(post("/api/v1/items/grant")
+                        .with(csrf())
                         .header("Authorization", basicAuth("admin", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void adminMutationWithoutCsrfIsForbidden() throws Exception {
+        String body = """
+                {
+                  "userId": "target-player",
+                  "itemId": "enhance_rate_boost_5",
+                  "amount": 1
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/items/grant")
+                        .header("Authorization", basicAuth("admin", "password"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isForbidden());
     }
 
     private String basicAuth(String username, String password) {

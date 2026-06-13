@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.closeTo;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -94,6 +95,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         put("/api/v1/saves/test-user-upsert")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -125,6 +127,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/weapons/equip")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -144,6 +147,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/weapons/equip")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -176,6 +180,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/weapons/lock")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -190,6 +195,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/weapons/unlock")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -211,6 +217,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/weapons/lock")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -230,6 +237,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/items/grant")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -263,6 +271,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/items/consume")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )
@@ -346,6 +355,7 @@ class GameFlowIntegrationTests {
 
         mockMvc.perform(
                         post("/api/v1/items/purchase")
+                                .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body)
                 )

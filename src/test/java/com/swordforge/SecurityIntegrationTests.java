@@ -13,6 +13,8 @@ import java.util.Base64;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(properties = {
@@ -37,6 +39,14 @@ class SecurityIntegrationTests {
 
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void csrfTokenEndpointRemainsPublic() throws Exception {
+        mockMvc.perform(get("/api/v1/security/csrf"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.headerName").exists())
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
     }
 
     @Test
@@ -83,6 +93,7 @@ class SecurityIntegrationTests {
                 """;
 
         mockMvc.perform(put("/api/v1/saves/alice")
+                        .with(csrf())
                         .header("Authorization", basicAuth("alice", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -100,6 +111,7 @@ class SecurityIntegrationTests {
                 """;
 
         mockMvc.perform(post("/api/v1/items/grant")
+                        .with(csrf())
                         .header("Authorization", basicAuth("alice", "password"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))

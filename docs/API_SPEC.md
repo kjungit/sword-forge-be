@@ -10,6 +10,14 @@ Runtime API requests require HTTP Basic authentication unless `app.security.enab
 
 When runtime security is enabled, regular players can only access requests whose `userId` matches the authenticated username. Admin users are allowed to access other player ids.
 
+Runtime mutation requests also require a CSRF token. Call `GET /security/csrf`, then send the returned `headerName` with the returned `token`.
+
+## Security
+
+### `GET /security/csrf`
+
+Returns the CSRF header name, parameter name, and token for mutation requests.
+
 ## Health
 
 ### `GET /health`
