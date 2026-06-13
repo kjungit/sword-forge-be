@@ -75,7 +75,7 @@ class GameFlowIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.currentWeaponId").value("normal_01"))
                 .andExpect(jsonPath("$.data.weaponInventory.normal_01").value(1))
-                .andExpect(jsonPath("$.data.materials.gold").value(20));
+                .andExpect(jsonPath("$.data.materials.gold").value(100000));
     }
 
     @Test

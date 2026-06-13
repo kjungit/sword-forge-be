@@ -363,7 +363,7 @@ def cross_validate() -> list[str]:
     default_save = {
         "userId": "sample-user",
         "currentWeaponId": "normal_01",
-        "materials": {"gold": 20},
+        "materials": {"gold": 100000},
         "specialItems": {},
         "weaponInventory": {"normal_01": 1},
         "lockedWeaponIds": [],

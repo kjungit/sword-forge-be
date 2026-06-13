@@ -10,13 +10,33 @@ Runtime API requests require HTTP Basic authentication unless `app.security.enab
 
 When runtime security is enabled, regular players can only access requests whose `userId` matches the authenticated username. Admin users are allowed to access other player ids.
 
-Runtime mutation requests also require a CSRF token. Call `GET /security/csrf`, then send the returned `headerName` with the returned `token`.
+Runtime mutation requests also require a CSRF token. Call `GET /security/csrf`, then send the returned `headerName` with the returned `token`. Native clients that do not keep cookies automatically must also send `Cookie: {cookieName}={token}` on mutation requests.
+
+Local browser or Web export clients can use the default CORS origins configured by `APP_CORS_ALLOWED_ORIGINS`. The default local origins include `localhost` and `127.0.0.1` on ports `3000`, `5173`, and `8080`.
 
 ## Security
 
 ### `GET /security/csrf`
 
-Returns the CSRF header name, parameter name, and token for mutation requests.
+Returns the CSRF header name, parameter name, token, and cookie name for mutation requests.
+
+Example response data:
+
+```json
+{
+  "headerName": "X-XSRF-TOKEN",
+  "parameterName": "_csrf",
+  "token": "csrf-token-value",
+  "cookieName": "XSRF-TOKEN"
+}
+```
+
+For `POST`, `PUT`, `PATCH`, and `DELETE`, send:
+
+```http
+X-XSRF-TOKEN: csrf-token-value
+Cookie: XSRF-TOKEN=csrf-token-value
+```
 
 ## Health
 
@@ -90,7 +110,7 @@ Body:
 ```json
 {
   "currentWeaponId": "normal_01",
-  "materials": { "gold": 20 },
+  "materials": { "gold": 100000 },
   "specialItems": {},
   "weaponInventory": { "normal_01": 1 },
   "lockedWeaponIds": [],
@@ -170,6 +190,12 @@ Returns sale economics for the weapon.
 Optional query params:
 - `userId`: when present, returns user-specific fallback information.
 - `amount`: optional sale amount, default `1`.
+
+Recommended frontend call:
+
+```http
+GET /api/v1/shop/sell-preview/normal_02?userId=local_user&amount=1
+```
 
 Response includes:
 - `weaponId`

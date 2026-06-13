@@ -19,6 +19,7 @@ import java.util.function.Function;
 public class PlayerSaveService {
 
     public static final String GOLD_MATERIAL_ID = "gold";
+    public static final int DEFAULT_STARTING_GOLD = 100_000;
 
     private static final TypeReference<Map<String, Integer>> MAP_INTEGER_TYPE = new TypeReference<>() {};
     private static final TypeReference<List<String>> LIST_STRING_TYPE = new TypeReference<>() {};
@@ -193,7 +194,7 @@ public class PlayerSaveService {
         return new PlayerSaveData(
                 userId,
                 "normal_01",
-                Map.of(GOLD_MATERIAL_ID, 20),
+                Map.of(GOLD_MATERIAL_ID, DEFAULT_STARTING_GOLD),
                 Map.of(),
                 Map.of("normal_01", 1),
                 List.of(),

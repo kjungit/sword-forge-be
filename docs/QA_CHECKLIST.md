@@ -12,6 +12,7 @@
 - Selling a locked sword is rejected.
 - `/swagger-ui.html` loads the Swagger UI.
 - `/v3/api-docs` returns OpenAPI JSON.
+- Local frontend CORS preflight succeeds for configured origins.
 
 ## Save
 
@@ -39,16 +40,28 @@
 - Enhancement attempts are logged.
 - Enhancement logs include `detailsJson`.
 - Reward grants are logged.
+- Normal-grade enhancement preview returns `requiredItems=[]`.
+- Normal-grade enhancement attempt is never rejected because an enhancement material is missing.
+- Enhance attempt responses include `currentWeaponId`, `equippedWeaponId`, `remainingMaterials`, `nextPreview`, `canRetry`, and `missingResources`.
 
 ## Shop
 
 - Unlocked weapons can be purchased.
 - Locked weapons are rejected.
 - Purchase cost is deducted from materials.
-- `GET /api/v1/shop/sell-preview/{weaponId}` returns sale gold.
+- `GET /api/v1/shop/sell-preview/{weaponId}?userId={userId}&amount=1` returns sale economics.
+- Sale preview includes `weaponId`, `investedGold`, `sellGold`, `profitMultiplier`, and `willFallbackToStarter`.
+- Sale preview satisfies `sellGold >= investedGold * 2`.
 - `POST /api/v1/shop/sell` adds gold and removes the sold stored sword copies.
-- Selling every owned sword is rejected.
+- Selling the only starter `normal_01` is rejected.
+- Selling the last non-starter sword restores and equips starter `normal_01`.
 - Selling the equipped sword equips the best remaining owned sword if no copy remains.
+
+## Idle Income
+
+- `POST /api/v1/idle/claim` grants gold from the equipped weapon's attack power.
+- Idle claim response includes `damage`, `isCritical`, `goldGained`, `totalGold`, and `lastClaimedAt`.
+- Repeated idle claims do not grant unlimited gold without elapsed time.
 
 ## Evolution
 
@@ -84,6 +97,9 @@
 
 - Runtime APIs require HTTP Basic authentication when `app.security.enabled=true`.
 - Health, Swagger UI, and OpenAPI JSON remain public.
+- `GET /api/v1/security/csrf` returns `headerName`, `parameterName`, `token`, and `cookieName`.
+- Mutation requests without CSRF are rejected.
+- Mutation requests with CSRF and matching Basic Auth are accepted or reach business validation.
 - Authenticated players can access their own `userId`.
 - Authenticated players are forbidden from accessing another player's `userId`.
 - Regular players are forbidden from `PUT /api/v1/saves/{userId}`.

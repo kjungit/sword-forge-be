@@ -41,6 +41,7 @@
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Frontend handoff: `docs/FRONTEND_HANDOFF.md`
 
 ## Runtime security
 
@@ -53,6 +54,8 @@ Set `APP_SECURITY_ENABLED=false` only for local throwaway runs or test profiles.
 
 When runtime security is enabled, mutation requests must include a CSRF token. Call
 `GET /api/v1/security/csrf` and send the returned `headerName` with the returned `token`.
+Native clients that do not keep cookies automatically must also send
+`Cookie: XSRF-TOKEN={token}`.
 
 ## GitHub Actions
 

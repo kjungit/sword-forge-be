@@ -10,19 +10,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/security")
 public class SecurityApiController {
 
+    public static final String CSRF_COOKIE_NAME = "XSRF-TOKEN";
+
     @GetMapping("/csrf")
     public ApiResponse<CsrfTokenResponse> csrf(CsrfToken csrfToken) {
         return ApiResponse.ok(new CsrfTokenResponse(
                 csrfToken.getHeaderName(),
                 csrfToken.getParameterName(),
-                csrfToken.getToken()
+                csrfToken.getToken(),
+                CSRF_COOKIE_NAME
         ));
     }
 
     public record CsrfTokenResponse(
             String headerName,
             String parameterName,
-            String token
+            String token,
+            String cookieName
     ) {
     }
 }

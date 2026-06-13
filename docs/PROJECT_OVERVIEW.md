@@ -39,6 +39,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 - Audit details on enhancement attempt logs
 - Basic Auth runtime guard, enabled outside tests
 - CSRF token endpoint for runtime mutation requests
+- Configurable CORS for local frontend and Web export test origins
 - Swagger UI at `/swagger-ui.html`
 
 ## Game Data Files
@@ -71,6 +72,7 @@ Build a server for the sword-forging game with persistent saves, enhancement log
 ## Current Artifacts
 
 - API documentation under `docs/API_SPEC.md`
+- Frontend handoff contract under `docs/FRONTEND_HANDOFF.md`
 - Rules under `docs/SYSTEM_RULES.md`
 - QA checklist under `docs/QA_CHECKLIST.md`
 - Economy notes under `docs/ECONOMY_DESIGN.md`
