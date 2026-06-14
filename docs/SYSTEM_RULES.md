@@ -1,15 +1,39 @@
 # System Rules
 
-- The game core is sword enhancement.
-- Enhancement success advances to the next sword.
+- The game core is sword forging.
+- Enhancement success advances to the next sword within the same grade.
+- Enhancement success keeps the previous sword copy in storage and adds the next sword.
+- Stored swords can be equipped again if the player owns at least one copy.
+- Grade upgrades are handled only by evolution.
 - Enhancement failure destroys the current sword.
+- Enhancement attempts consume a configured gold fee.
+- Normal-grade enhancement is gold-only and does not require or consume protection or boost items.
 - Failure grants material rewards.
+- Destroyed weapons do not grant gold.
 - First reach unlocks repurchase for that sword.
+- Once a non-normal grade is discovered, a destroy failure cannot drop the player below that grade's first sword.
+- Stored swords can be sold for gold.
+- Sale gold is at least two times the cumulative enhancement gold invested to reach that sword.
+- Stored swords can be locked to prevent accidental sale.
+- Locked swords cannot be sold until unlocked.
+- Selling the last non-starter sword restores `normal_01`.
+- Selling the only `normal_01` is rejected.
 - Purchased swords consume materials.
+- Idle claims generate gold from current weapon damage.
+- Special items can be purchased with gold.
 - Evolution consumes weapons and materials.
+- Evolution resets the pity stack for the source grade.
 - Protection tickets are consumed on protected enhancement attempts.
 - Protected failures keep the current sword from being destroyed.
+- Pity stacks increase on enhancement failure and add a capped success-rate bonus for the same grade.
+- Enhancement success keeps the current grade pity stack; evolution success clears it.
 - Enhancement and purchase operations are transactional.
+- Runtime player requests can only mutate or read their own `userId` unless the caller is an admin.
+- Direct save upsert and special-item grant are admin-only runtime operations.
 - Enhancement failures and special-item grants are recorded in reward logs.
+- Weapon sales and special-item purchases are recorded in reward logs.
+- Economy source and sink deltas are recorded in signed ledger logs.
+- Enhancement attempt logs include audit details such as pity values and failure rewards.
 - Weapon definitions are loaded from `src/main/resources/data/weapons.json`.
 - Failure reward tables are loaded from `src/main/resources/data/failure_rewards.json`.
+- Gold is stored as `materials.gold`.

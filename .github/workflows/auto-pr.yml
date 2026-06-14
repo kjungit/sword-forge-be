@@ -1,0 +1,85 @@
+name: Auto PR
+
+on:
+  push:
+    branches:
+      - "codex/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    name: Open PR to dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create or reuse PR
+        env:
+          GH_TOKEN: ${{ secrets.PR_AUTOMATION_TOKEN || secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: dev
+          HEAD_BRANCH: ${{ github.ref_name }}
+        run: |
+          existing_url="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --head "$HEAD_BRANCH" \
+            --base "$BASE_BRANCH" \
+            --state open \
+            --json url \
+            --jq '.[0].url // ""')"
+
+          if [ -n "$existing_url" ]; then
+            echo "$existing_url"
+            exit 0
+          fi
+
+          cat > /tmp/pr_body.md <<'BODY'
+          ## Summary
+
+          Automated PR opened from a Codex work branch.
+
+          ## Required Checks
+
+          - CI
+          - Balance Simulation
+          - PR Review Checks
+          - CodeQL
+
+          ## Review Focus
+
+          - gameplay rule regressions
+          - economy source/sink balance
+          - save migration safety
+          - API compatibility
+          BODY
+
+          if ! create_output="$(gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$HEAD_BRANCH" \
+            --title "Auto PR: $HEAD_BRANCH" \
+            --body-file /tmp/pr_body.md 2>&1)"; then
+            echo "$create_output"
+
+            existing_url="$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --head "$HEAD_BRANCH" \
+              --base "$BASE_BRANCH" \
+              --state open \
+              --json url \
+              --jq '.[0].url // ""')"
+
+            if [ -n "$existing_url" ]; then
+              echo "$existing_url"
+              exit 0
+            fi
+
+            echo "::warning::Unable to create a pull request automatically. Check workflow permissions or create the PR manually."
+            exit 0
+          fi
+
+          echo "$create_output"

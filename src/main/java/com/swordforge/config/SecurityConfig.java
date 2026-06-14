@@ -1,0 +1,51 @@
+package com.swordforge.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+
+@Configuration
+public class SecurityConfig {
+
+    private final boolean securityEnabled;
+
+    public SecurityConfig(@Value("${app.security.enabled:true}") boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler csrfTokenRequestHandler = new CsrfTokenRequestAttributeHandler();
+        http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(csrfTokenRequestHandler))
+                .formLogin(form -> form.disable());
+
+        if (!securityEnabled) {
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+            return http.build();
+        }
+
+        http.authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/v1/health",
+                                "/api/v1/security/csrf",
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }
+}
