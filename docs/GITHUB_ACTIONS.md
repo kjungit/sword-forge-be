@@ -2,6 +2,8 @@
 
 This document explains the automation currently configured for the Sword Forge backend repository.
 
+Korean version: `docs/GITHUB_ACTIONS_KO.md`
+
 ## Overview
 
 | Workflow | File | Main purpose |
