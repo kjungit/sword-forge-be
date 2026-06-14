@@ -8,6 +8,7 @@ out/
 !.env.example
 .local/
 *.log
+__pycache__/
 .DS_Store
 outputs/*
 !outputs/.gitkeep

@@ -16,6 +16,7 @@ spring:
     enabled: true
   docker:
     compose:
+      enabled: ${SPRING_DOCKER_COMPOSE_ENABLED:false}
       lifecycle-management: none
 
 server:

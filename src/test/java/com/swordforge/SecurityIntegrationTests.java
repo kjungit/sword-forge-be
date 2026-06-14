@@ -1,5 +1,7 @@
 package com.swordforge;
 
+import com.jayway.jsonpath.JsonPath;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -7,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -62,6 +65,32 @@ class SecurityIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"))
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"));
+    }
+
+    @Test
+    void frontendStyleCsrfTokenAllowsAuthenticatedMutation() throws Exception {
+        MvcResult csrfResult = mockMvc.perform(get("/api/v1/security/csrf"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String token = JsonPath.read(csrfResult.getResponse().getContentAsString(), "$.data.token");
+        Cookie csrfCookie = csrfResult.getResponse().getCookie("XSRF-TOKEN");
+
+        String body = """
+                {
+                  "userId": "alice",
+                  "weaponId": "normal_01",
+                  "useProtection": false
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/enhance/preview")
+                        .header("Authorization", basicAuth("alice", "password"))
+                        .header("X-XSRF-TOKEN", token)
+                        .cookie(csrfCookie)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.weaponId").value("normal_01"));
     }
 
     @Test
