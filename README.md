@@ -43,6 +43,7 @@
 - OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 - Frontend handoff: `docs/FRONTEND_HANDOFF.md`
 - Local testing guide: `docs/LOCAL_TESTING.md`
+- GitHub Actions guide: `docs/GITHUB_ACTIONS.md`
 
 ## Runtime security
 
