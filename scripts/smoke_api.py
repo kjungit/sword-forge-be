@@ -4,6 +4,7 @@ import base64
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -68,16 +69,21 @@ class ApiClient:
             headers[self.csrf_header] = self.csrf_token
             headers["Cookie"] = f"{self.csrf_cookie_name}={self.csrf_token}"
 
-        req = urllib.request.Request(url, data=body, headers=headers, method=method)
-        try:
-            with urllib.request.urlopen(req, timeout=15) as response:
-                raw = response.read().decode("utf-8")
-                status = response.status
-        except urllib.error.HTTPError as exc:
-            raw = exc.read().decode("utf-8", errors="replace")
-            fail(f"{method} {url} returned HTTP {exc.code}: {raw}")
-        except urllib.error.URLError as exc:
-            fail(f"{method} {url} failed: {exc.reason}")
+        for attempt in range(3):
+            req = urllib.request.Request(url, data=body, headers=headers, method=method)
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    raw = response.read().decode("utf-8")
+                    status = response.status
+                    break
+            except urllib.error.HTTPError as exc:
+                raw = exc.read().decode("utf-8", errors="replace")
+                if exc.code == 409 and attempt < 2:
+                    time.sleep(0.25 * (attempt + 1))
+                    continue
+                fail(f"{method} {url} returned HTTP {exc.code}: {raw}")
+            except urllib.error.URLError as exc:
+                fail(f"{method} {url} failed: {exc.reason}")
 
         if status < 200 or status >= 300:
             fail(f"{method} {url} returned HTTP {status}: {raw}")
@@ -103,10 +109,16 @@ def require(condition: bool, message: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Smoke test a running Sword Forge backend.")
     parser.add_argument("--base-url", default=os.getenv("SWORD_FORGE_API_BASE_URL", "http://127.0.0.1:8080/api/v1"))
-    parser.add_argument("--user", default=os.getenv("SWORD_FORGE_API_USER", "local_user"))
-    parser.add_argument("--password", default=os.getenv("SWORD_FORGE_API_PASSWORD", "local_password"))
+    parser.add_argument("--user", default=os.getenv("SWORD_FORGE_API_USER", "local_user"), help="HTTP Basic Auth username.")
+    parser.add_argument("--password", default=os.getenv("SWORD_FORGE_API_PASSWORD", "local_password"), help="HTTP Basic Auth password.")
+    parser.add_argument(
+        "--user-id",
+        default=os.getenv("SWORD_FORGE_USER_ID", ""),
+        help="Player save user id. Defaults to the Basic Auth username; with security enabled this must match the authenticated user unless the caller is an admin.",
+    )
     parser.add_argument("--with-enhance-attempt", action="store_true", help="Also run one real enhancement attempt.")
     args = parser.parse_args()
+    player_user_id = args.user_id or args.user
 
     client = ApiClient(args.base_url, args.user, args.password)
 
@@ -126,7 +138,7 @@ def main() -> None:
     require(isinstance(weapons, list) and len(weapons) >= 1, "weapon catalog should be a non-empty list")
     pass_step(f"weapon catalog loaded ({len(weapons)} weapons)")
 
-    save = client.request("GET", f"/saves/{urllib.parse.quote(args.user)}")
+    save = client.request("GET", f"/saves/{urllib.parse.quote(player_user_id)}")
     current_weapon = str(save.get("currentWeaponId", ""))
     require(current_weapon, f"save should include currentWeaponId, got {save}")
     require(isinstance(save.get("weaponInventory"), dict) and save["weaponInventory"], f"save should include weapon inventory, got {save}")
@@ -136,7 +148,7 @@ def main() -> None:
     preview = client.request(
         "POST",
         "/enhance/preview",
-        payload={"userId": args.user, "weaponId": "normal_01", "useProtection": False},
+        payload={"userId": player_user_id, "weaponId": "normal_01", "useProtection": False},
         csrf=True,
     )
     require(preview.get("weaponId") == "normal_01", f"enhance preview weapon mismatch: {preview}")
@@ -144,7 +156,7 @@ def main() -> None:
     require("canRetry" not in preview, "preview should not include attempt-only canRetry")
     pass_step("normal enhance preview is gold-only")
 
-    sale_path = f"/shop/sell-preview/normal_02?{urllib.parse.urlencode({'userId': args.user, 'amount': 1})}"
+    sale_path = f"/shop/sell-preview/normal_02?{urllib.parse.urlencode({'userId': player_user_id, 'amount': 1})}"
     sale = client.request("GET", sale_path)
     invested = int(sale.get("investedGold", 0))
     sell_gold = int(sale.get("sellGold", 0))
@@ -154,7 +166,7 @@ def main() -> None:
     idle = client.request(
         "POST",
         "/idle/claim",
-        payload={"userId": args.user},
+        payload={"userId": player_user_id},
         csrf=True,
     )
     require("damage" in idle and "goldGained" in idle and "totalGold" in idle, f"invalid idle claim response: {idle}")
@@ -164,7 +176,7 @@ def main() -> None:
         attempt = client.request(
             "POST",
             "/enhance/attempt",
-            payload={"userId": args.user, "weaponId": current_weapon, "useProtection": False},
+            payload={"userId": player_user_id, "weaponId": current_weapon, "useProtection": False},
             csrf=True,
         )
         require("outcome" in attempt and "nextPreview" in attempt and "canRetry" in attempt, f"invalid attempt response: {attempt}")

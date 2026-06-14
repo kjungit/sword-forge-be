@@ -34,6 +34,8 @@ user:     local_user
 password: local_password
 ```
 
+The default player save id is also `local_user`. Override it with `SWORD_FORGE_USER_ID` or `python3 scripts/smoke_api.py --user-id <id>` only when the authenticated user is allowed to access that save. With the default security settings, the player user id must match the Basic Auth username.
+
 Stop the server:
 
 ```bash
@@ -118,9 +120,17 @@ Use the same values in the Godot frontend:
 export SWORD_FORGE_API_BASE_URL=http://127.0.0.1:8080/api/v1
 export SWORD_FORGE_API_USER=local_user
 export SWORD_FORGE_API_PASSWORD=local_password
+export SWORD_FORGE_USER_ID=local_user
 ```
 
 If you change `SERVER_PORT`, update `SWORD_FORGE_API_BASE_URL` as well.
+
+After the backend smoke passes, run the Godot live smoke from the frontend repo:
+
+```bash
+cd /Users/jun/Documents/sword-forge-fe
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script res://tests/live_backend_smoke.gd
+```
 
 ## Pre-Deployment Checklist
 
